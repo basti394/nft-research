@@ -1,48 +1,22 @@
 import dynamic from "next/dynamic";
 import {ApolloClient, InMemoryCache} from "@apollo/client";
 import {gql} from "apollo-server-micro";
+import {repeat} from "rxjs/operators";
+import {useEffect, useState} from "react";
+import {async} from "rxjs";
 
-const Graph = dynamic(() => import('./graph2d'), {
+const Graph = dynamic(() => import('../components/graph2d'), {
   ssr: false
 })
 
-export async function getStaticProps() {
-
-  const formatData = (data) => {
-    const nodes = []
-    const links = []
-
-    if (!data?.users) {
-      return { nodes, links }
-    }
-
-    data?.users.forEach( (user) => {
-
-      if (user.address == '8GSiZbxkd6nR2sNRftCNuAaPyX9Aoa9ER8RsiZDNzGuM') {
-        nodes.push({
-          id: user.address,
-          group: 2
-        })
-      } else {
-        nodes.push({
-          id: user.address,
-          group: 1
-        })
-      }
-
-      if (user.soldTo != null && user.soldToConnection != null) {
-        user.soldTo.forEach((address, index) => {
-          links.push({
-            source: user.address,
-            target: address,
-            name: `price: ${user.soldToConnection.edges[index].price} SOL \n marketplace: ${user.soldToConnection.edges[index].marketplace}`
-          })
-        });
-      }
-    })
-
-    return { nodes, links }
-  }
+// export async function getStaticProps() {
+//
+//   return {
+//     props: {
+//       data
+//     }
+//   }
+// }
 
   const client = new ApolloClient({
     uri: 'http://localhost:3000/api/graphql',
@@ -66,26 +40,87 @@ export async function getStaticProps() {
               }
             }
           }`
-      });
-      return formatData(res.data)
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  const data = await getData();
-
-  return {
-    props: {
-      data
-    }
+    });
+    return formatData(res.data)
+  } catch (err) {
+    console.log(err);
   }
 }
 
-export default function test({ data }) {
+const formatData = (data) => {
+  const nodes = []
+  const links = []
+
+  if (!data?.users) {
+    return { nodes, links }
+  }
+
+  data?.users.forEach( (user) => {
+
+    if (user.address == '8GSiZbxkd6nR2sNRftCNuAaPyX9Aoa9ER8RsiZDNzGuM') {
+      nodes.push({
+        id: user.address,
+        group: 2
+      })
+    } else {
+      nodes.push({
+        id: user.address,
+        group: 1
+      })
+    }
+
+    if (user.soldTo != null && user.soldToConnection != null) {
+      user.soldTo.forEach((soldTo, index) => {
+
+        let previous = 0;
+
+        links.forEach((link) => {
+          if ((link.source == user.address || link.source == soldTo.address) && (link.target == user.address || link.target == soldTo.address)) {
+            previous = previous + 1;
+          }
+        })
+
+        if (previous % 2 == 0) {
+          links.push({
+            source: user.address,
+            target: soldTo.address,
+            curvature: 0.3 * previous,
+            name: `price: ${user.soldToConnection.edges[index].price} SOL \n marketplace: ${user.soldToConnection.edges[index].marketplace}`
+          })
+        } else {
+          links.push({
+            source: user.address,
+            target: soldTo.address,
+            curvature: -0.3 * previous,
+            name: `price: ${user.soldToConnection.edges[index].price} SOL \n marketplace: ${user.soldToConnection.edges[index].marketplace}`
+          })
+        }
+
+      });
+    }
+  })
+
+  return { nodes, links }
+}
+
+
+export default function Index() {
+
+  const [ data, setData ] = useState({ nodes: [], links: [] })
+
+  useEffect(() => {
+
+    const fetchData = async () => {
+      setData(await getData())
+    }
+    fetchData().then();
+  }, [])
+  // const data = await getData();
 
   return (
-      <Graph data={data}></Graph>
+      <div>
+        <Graph data={data}></Graph>
+      </div>
   )
 }
 

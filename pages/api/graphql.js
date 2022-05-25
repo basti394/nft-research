@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     const apolloServer = new ApolloServer({
         schema: await neoSchema.getSchema(),
         playground: true,
-        // introspection: true, TODO: uncomment when in production
+        introspection: true, //TODO: uncomment when in production
         plugins: [ApolloServerPluginLandingPageGraphQLPlayground]
     });
     await apolloServer.start();
