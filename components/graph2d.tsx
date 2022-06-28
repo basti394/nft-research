@@ -1,6 +1,5 @@
-import {ForceGraph2D, ForceGraph3D} from "react-force-graph"
-import {useEffect, useRef} from "react";
-import ForceEngine from "three-forcegraph";
+import {ForceGraph2D} from "react-force-graph"
+import {useRef} from "react";
 
 
 const testData = {
@@ -43,4 +42,3 @@ export default function Graph2d({ data }) {
         </div>
     )
 }
-
