@@ -9,7 +9,7 @@ const session = driver.session();
 export default async function checkIfCollectionIsStored(name: string): Promise<boolean> {
 
     if (name == 'system') {
-        return false;
+        throw 'invalid_name';
     }
 
     const query = 'show databases';

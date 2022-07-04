@@ -18,6 +18,7 @@ export default async function handler(req, res) {
         isCollectionStored = await checkIfCollectionIsStored(name);
     } catch (e) {
         res.status(500).send(e);
+        return;
     }
 
     if (isCollectionStored) {

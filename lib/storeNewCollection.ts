@@ -10,7 +10,6 @@ export default async function storeNewCollection(name: string, data: any) {
 
     const query = `create database ${name}`;
 
-    // call apoc.load.json(${data}) yield value where value.type starts with "buyNow" merge (seller:User {address:value.seller}) merge (buyer:User {address: value.buyer}) merge (seller)-[:SoldTo]->(buyer)`;
     try {
         await session.run(query);
     } catch (e) {
