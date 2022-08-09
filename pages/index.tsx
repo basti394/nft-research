@@ -11,7 +11,7 @@ export default function Index() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setData(await fetch('/api/history/test', {
+      setData(await fetch('/api/history/degods', {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json; charset=utf-8",
@@ -21,6 +21,8 @@ export default function Index() {
     }
     fetchData().then();
   }, [])
+
+  console.log('data before graph', data)
 
   return (
     <div>

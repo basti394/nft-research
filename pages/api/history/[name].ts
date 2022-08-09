@@ -3,6 +3,7 @@ import {gql} from "apollo-server-micro";
 import formatHistoryData from "../../../lib/Formatter/formatHistoryData";
 import checkIfCollectionIsStored from "../../../lib/checkIfCollectionIsStored";
 import storeNewCollection from "../../../lib/storeNewCollection";
+import foramtMagicEdenToGraphData from "../../../lib/Formatter/formatMagicEdenToGraphData";
 
 export default async function handler(req, res) {
     const name = req.query.name;
@@ -40,14 +41,22 @@ export default async function handler(req, res) {
           }`
         });
 
-        res.status(200).send(formatHistoryData(data.data))
+        const formattedData = formatHistoryData(data.data)
+
+        res.status(200).send(formattedData)
         return;
     }
+
 
     const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=0&limit=100`)
     const data = await response.json();
 
     await storeNewCollection(name.replaceAll('_', '.'), JSON.stringify(data));
 
-    res.status(200).send(data);
+    const filteredData = data.filter(function (data) {
+        return data.type == 'buyNow';
+    })
+    const formattedData = foramtMagicEdenToGraphData(filteredData)
+
+    res.status(200).send(formattedData);
 }

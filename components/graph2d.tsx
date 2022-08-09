@@ -18,7 +18,6 @@ const testData = {
 export default function Graph2d({ data }) {
 
     console.log('Graph given data', data);
-    console.log('testData', testData);
 
     const fgRef = useRef<any>();
     fgRef.current?.d3Force('link').distance(30)
