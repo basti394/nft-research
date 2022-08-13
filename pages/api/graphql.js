@@ -6,7 +6,7 @@ import {typeDefs} from "./schemas";
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
-    neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD)
+    neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD),
 );
 
 export default async function handler(req, res) {

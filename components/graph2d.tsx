@@ -1,5 +1,6 @@
 import {ForceGraph2D} from "react-force-graph"
 import {useRef} from "react";
+import {Center, Text} from "@chakra-ui/react";
 
 
 const testData = {
@@ -17,13 +18,23 @@ const testData = {
 
 export default function Graph2d({ data }) {
 
-    console.log('Graph given data', data);
+    console.log('Graph given data', data.nodes);
 
     const fgRef = useRef<any>();
     fgRef.current?.d3Force('link').distance(30)
     fgRef.current?.d3Force('charge')
         .strength(-20)
         .distanceMax(100)
+
+
+    if (data.nodes == []) {
+        return <Center>
+            <Text
+                textAlign="center">
+                Bitte geb eine Kollektion ein
+            </Text>
+        </Center>
+    }
 
     return (
         <div>
