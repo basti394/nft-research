@@ -3,6 +3,7 @@ import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-co
 import { Neo4jGraphQL } from "@neo4j/graphql";
 import neo4j from "neo4j-driver";
 import {typeDefs} from "./schemas";
+import {Neo4jGraphQLConfig} from "@neo4j/graphql/dist/classes/Neo4jGraphQL";
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
@@ -18,11 +19,19 @@ export default async function handler(req, res) {
         return false;
     }
 
-    const neoSchema = new Neo4jGraphQL({ typeDefs, driver });
+    let database = req.headers.database
+
+    const config: Neo4jGraphQLConfig = {
+        driverConfig: {
+            database: database
+        }
+    }
+
+    const neoSchema = new Neo4jGraphQL({ typeDefs, config, driver});
     const apolloServer = new ApolloServer({
         schema: await neoSchema.getSchema(),
         playground: true,
-        introspection: true, //TODO: uncomment when in production
+        introspection: true,
         plugins: [ApolloServerPluginLandingPageGraphQLPlayground]
     });
     await apolloServer.start();

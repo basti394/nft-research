@@ -9,6 +9,9 @@ export default async function handler(req, res) {
     const name = req.query.name;
 
     const client = new ApolloClient({
+        headers: {
+            database: name
+        },
         uri: 'http://localhost:3000/api/graphql',
         cache: new InMemoryCache(),
     });
@@ -47,8 +50,10 @@ export default async function handler(req, res) {
         return;
     }
 
+    console.log('Anfrage an MagicEden')
 
     const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=0&limit=100`)
+    console.log('Code from MagicEden', response.status)
     const data = await response.json();
 
     await storeNewCollection(name.replaceAll('_', '.'), JSON.stringify(data));

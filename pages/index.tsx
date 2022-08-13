@@ -49,13 +49,13 @@ export default function Index() {
       <div>
         <Center>
           <Input
+              defaultValue={input}
               m={[2, 3]}
               placeholder='Enter a NFT Collection'
               variant='filled'
               onKeyPress={e=> {
                 if (e.key === 'Enter') {
                   handleSubmit(e)
-                  console.log('sdfsadfsadfsadf')
                 }
               }}
           ></Input>
