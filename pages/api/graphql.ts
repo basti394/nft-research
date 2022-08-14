@@ -10,7 +10,9 @@ const driver = neo4j.driver(
     neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD),
 );
 
+
 export default async function handler(req, res) {
+    console.log('Handling received request to grapql')
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Access-Control-Allow-Origin", "https://studio.apollographql.com");
     res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -21,6 +23,8 @@ export default async function handler(req, res) {
 
     let database = req.headers.database
 
+    console.log(database)
+
     const config: Neo4jGraphQLConfig = {
         driverConfig: {
             database: database
@@ -30,9 +34,8 @@ export default async function handler(req, res) {
     const neoSchema = new Neo4jGraphQL({ typeDefs, config, driver});
     const apolloServer = new ApolloServer({
         schema: await neoSchema.getSchema(),
-        playground: true,
         introspection: true,
-        plugins: [ApolloServerPluginLandingPageGraphQLPlayground]
+        plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
     });
     await apolloServer.start();
     await apolloServer.createHandler({

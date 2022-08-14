@@ -45,7 +45,6 @@ export default async function handler(req, res) {
         });
 
         const formattedData = formatHistoryData(data.data)
-
         res.status(200).send(formattedData)
         return;
     }
