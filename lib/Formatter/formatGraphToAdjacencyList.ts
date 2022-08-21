@@ -1,10 +1,10 @@
 import {element, node} from "prop-types";
 
-export default function formatMagicEdenToGraphData(wholeData): { nodes: any[]; links: any[]; } {
+export default function formatGraphToAdjacencyList(data): { nodes: any[]; links: any[]; } {
     const nodes = []
     const links = []
 
-    wholeData?.forEach( (data, index) => {
+    data?.forEach( (data) => {
 
         if (!nodes.some(element => element.id == data.seller)) {
             nodes.push({
@@ -21,10 +21,6 @@ export default function formatMagicEdenToGraphData(wholeData): { nodes: any[]; l
         }
 
         let repetitions = links.filter((element) => element.source == data.seller && element.target == data.target).length
-
-        let indexSeller = wholeData.findIndex(item => item.seller == data.seller)
-        let indexBuyer = wholeData.findIndex(item => item.buyer == data.buyer)
-
 
         if (repetitions % 2 == 0) {
             links.push({

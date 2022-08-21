@@ -19,7 +19,7 @@ export default async function storeNewCollection(name: string, data: string) {
     data = data.replace(/"([^"]+)":/g, '$1:');
 
     const createDatabaseQuery = `create database ${name}`;
-    const createGraphQuery = `use ${name} with ${data} as dataList with [data in dataList where data.type = "buyNow"] as filteredData foreach (data in filteredData | merge (seller:User {address:data.seller}) merge (buyer:User {address: data.buyer}) create (seller)-[:SOLDTO {price: data.price, marketplace: data.source, token: data.tokenMint }]->(buyer) )`;
+    const createGraphQuery = `use ${name} with ${data} as dataList with [data in dataList where data.type = "buyNow"] as filteredData foreach (data in filteredData | merge (seller:User {address:data.seller, washtrader:false}) merge (buyer:User {address: data.buyer, washtrader:false}) create (seller)-[:SOLDTO {price: data.price, marketplace: data.source, token: data.tokenMint, flagged: false, timeStamp: data.blockTime }]->(buyer) )`;
 
     try {
         await session.run(createDatabaseQuery);

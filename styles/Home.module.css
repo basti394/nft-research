@@ -67,10 +67,10 @@
 
 .grid {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: normal;
+  justify-content: normal;
   flex-wrap: wrap;
-  max-width: 800px;
+  max-width: max-content;
 }
 
 .card {

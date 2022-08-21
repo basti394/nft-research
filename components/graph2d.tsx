@@ -4,15 +4,15 @@ import {Center, Text} from "@chakra-ui/react";
 
 
 const testData = {
-    nodes: [{ id: 'a', group: 1 }, { id: 'b', group: 1 }, { id: 'c', group: 2 }],
+    nodes: [{ id: 1, group: 1, name: "TESt" }, { id: 2, group: 1, name: "TEST1" }, { id: 3, group: 2, name: "test3" }],
     links: [
-        { source: 'b', target: 'c' },
-        { source: 'b', target: 'c', curvature: 0.3 },
-        { source: 'b', target: 'c', curvature: -0.3 },
-        { source: 'b', target: 'c', curvature: 0.6 },
-        { source: 'b', target: 'c', curvature: -0.6 },
-        { source: 'b', target: 'a', name: 'sdaf' },
-        { source: 'a', target: 'c', name: 'sdaf' }
+        { source: 2, target: 3 },
+        { source: 2, target: 3, curvature: 0.3 },
+        { source: 2, target: 3, curvature: -0.3 },
+        { source: 2, target: 3, curvature: 0.6 },
+        { source: 2, target: 3, curvature: -0.6 },
+        { source: 2, target: 1, name: 'sdaf' },
+        { source: 1, target: 3, name: 'sdaf' }
     ]
 };
 
@@ -21,17 +21,21 @@ export default function Graph2d({ data }) {
     console.log('Graph given data', data.nodes);
 
     const fgRef = useRef<any>();
-    fgRef.current?.d3Force('link').distance(30)
+    fgRef.current?.d3Force('link').distance(10)
     fgRef.current?.d3Force('charge')
         .strength(-20)
-        .distanceMax(100)
+        .distanceMax(20)
 
+    function goToAddressPage(address: string) {
+        window.open(`https://magiceden.io/u/${address}`)
+    }
 
     if (data.nodes == []) {
         return <Center>
             <Text
-                textAlign="center">
-                Bitte geb eine Kollektion ein
+                textAlign="center"
+            >
+                Please enter the name of a NFT collection
             </Text>
         </Center>
     }
@@ -39,11 +43,12 @@ export default function Graph2d({ data }) {
     return (
         <div>
             <ForceGraph2D
+                onNodeClick={(node, event) => goToAddressPage(node.id.toString())}
                 enableNodeDrag={false}
                 ref={fgRef}
                 graphData={data}
                 cooldownTicks={100}
-                onEngineStop={() => fgRef.current?.zoomToFit(400)}
+                //onEngineStop={() => fgRef.current?.zoomToFit(100, 10)}
                 nodeRelSize={6}
                 linkCurvature="curvature"
                 linkDirectionalArrowLength={5}
