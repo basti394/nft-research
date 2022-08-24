@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "run": "npm run build | npm run start",
     "production": "cross-env NODE_ENV=production run-s build start"
   },
   "dependencies": {
@@ -27,7 +28,7 @@
     "react": "18.0.0",
     "react-cytoscapejs": "^1.2.1",
     "react-dom": "18.0.0",
-    "react-force-graph": "^1.41.12",
+    "react-force-graph": "^1.41.14",
     "react-force-graph-2d": "^1.23.10",
     "strongly-connected-components": "^1.0.1"
   },

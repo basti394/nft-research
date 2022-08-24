@@ -66,14 +66,11 @@ export default async function handler(req, res) {
     })
     const formattedData = formatMagicEdenToGraphData(filteredData)
 
-    console.log('formattedDate: ', formattedData)
-
-
 
     const allNodes = formattedData.nodes
     const nodesParseMap = new Map()
 
-    allNodes.forEach((element, index) => nodesParseMap.set(element, index))
+    allNodes.forEach((element, index) => nodesParseMap.set(element.id, index))
 
     console.log('NodesParseMap: ', nodesParseMap)
 

@@ -18,13 +18,14 @@ const testData = {
 
 export default function Graph2d({ data }) {
 
-    console.log('Graph given data', data.nodes);
+    console.log('Graph given data', data);
 
     const fgRef = useRef<any>();
-    fgRef.current?.d3Force('link').distance(10)
+    fgRef.current?.d3Force('link').distance(link => 30)
     fgRef.current?.d3Force('charge')
         .strength(-20)
         .distanceMax(20)
+        .distanceMin(10)
 
     function goToAddressPage(address: string) {
         window.open(`https://magiceden.io/u/${address}`)
@@ -44,7 +45,7 @@ export default function Graph2d({ data }) {
         <div>
             <ForceGraph2D
                 onNodeClick={(node, event) => goToAddressPage(node.id.toString())}
-                enableNodeDrag={false}
+                enableNodeDrag={true}
                 ref={fgRef}
                 graphData={data}
                 cooldownTicks={100}

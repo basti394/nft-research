@@ -15,9 +15,7 @@ export default function getSingleTokenGraph(data): any[] {
         )
     })
 
-    separateGraphs.forEach(element => element.nodes.filter(node => element.links.source == node.id || element.links.target == node.id))
-
-    console.log('seperatedGraphs: ', separateGraphs)
+    separateGraphs.forEach(element => element.nodes =  element.nodes.filter(node => element.links.some(link => link.source == node.id) || element.links.some(link => link.target == node.id)))
 
     return separateGraphs;
 }

@@ -24,25 +24,5 @@ export default async function checkIfCollectionIsStored(name: string): Promise<b
         throw 'db_error';
     }
 
-    let timestamps = result.records.map((record) => record.timestamp)
-    let tempHighestNumber = 0
-
-    timestamps.forEach((record) => {
-        if (tempHighestNumber < record) {
-            tempHighestNumber = record
-        }
-    })
-
-    if (result.records.some((record) => record._fields[0] == name.replaceAll('_', '.'))) {
-        if (tempHighestNumber + (604800 * 2) < Date.now()) {
-            const query = `use ${name.replace('-', '.')} MATCH (n) DETACH DELETE n`
-            try {
-                await session.run(query)
-            } catch {
-                throw 'db_error';
-            }
-            return false
-        }
-        return true
-    }
+    return result.records.some((record) => record._fields[0] == name.replaceAll('_', '.'));
 }
