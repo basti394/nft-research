@@ -1,4 +1,5 @@
 import neo4j from "neo4j-driver";
+import * as fs from "fs";
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,

@@ -32,13 +32,21 @@ export default async function handler(req, res) {
     if (!isCollectionStored) {
         console.log('Anfrage an MagicEden')
 
-        const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=0&limit=100`)
-        console.log('json from MagicEden', response.status)
-        const data = await response.json();
+        let data: any[][] = await requestFromME(name)
+
+        let newArr = [];
+
+        for(let i = 0; i < data.length; i++)
+        {
+            newArr = newArr.concat(data[i]);
+        }
+        data = newArr
 
         await storeNewCollection(name.replaceAll('_', '.'), JSON.stringify(data));
 
-        const formattedData = formatMagicEdenToGraphData(data.data)
+        console.log("HAHAHAHAHA")
+
+        const formattedData = formatMagicEdenToGraphData(data)
 
         const allNodes = formattedData.nodes
         const nodesParseMap = new Map()
@@ -109,4 +117,17 @@ function getByValue(map, searchValue) {
         if (value === searchValue)
             return key;
     }
+}
+
+async function requestFromME(name: string): Promise<any> {
+
+    let list = []
+
+    for (let i = 0; i < 10; i++) {
+        const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=${i*100}&limit=100`)
+        const data = await response.json();
+        list.push(data)
+    }
+
+    return list
 }

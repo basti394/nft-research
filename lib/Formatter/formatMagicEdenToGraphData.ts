@@ -2,8 +2,6 @@ import {element, node} from "prop-types";
 
 export default function formatMagicEdenToGraphData(wholeData): { nodes: any[]; links: any[]; } {
 
-    console.log('wholeData: ', wholeData)
-
     const nodes = []
     const links = []
 
