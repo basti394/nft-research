@@ -41,20 +41,21 @@ export default async function handler(req, res) {
 
     const data = await client.query({
         query: gql`
-      {
-        users {
-          address
-          soldTo {
-            address
-           }
-          soldToConnection {
-            edges{
-              price
-              marketplace
+          {
+            users {
+              address
+              soldTo {
+                address
+               }
+              soldToConnection {
+                edges{
+                  price
+                  marketplace
+                  token
+                }
+              }
             }
-          }
-        }
-      }`
+          }`
     });
 
     const formattedData = formatHistoryData(data.data)
