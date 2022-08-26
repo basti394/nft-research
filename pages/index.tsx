@@ -64,8 +64,6 @@ export default function Index(){
     setInput(event.target.value)
   }
 
-  console.log('<sdfasdfasfasdf', allTokenGraphs)
-
   if (loading) return <Spinner size='xl' />
 
   function handleTokenSelect(data: {nodes: any[], links: any[]}) {

@@ -40,11 +40,10 @@ export default async function handler(req, res) {
         {
             newArr = newArr.concat(data[i]);
         }
-        data = newArr
+
+        data = newArr.filter((element) => element.type == "buyNow")
 
         await storeNewCollection(name.replaceAll('_', '.'), JSON.stringify(data));
-
-        console.log("HAHAHAHAHA")
 
         const formattedData = formatMagicEdenToGraphData(data)
 
@@ -85,7 +84,11 @@ export default async function handler(req, res) {
 
         console.log('sccs in normal values: ', parsedSCCs)
 
-        parsedSCCs.forEach((address) => markAddressAsWashTrader(address, name))
+        for (const scc of parsedSCCs) {
+            for (const element1 of scc) {
+                await markAddressAsWashTrader(element1, name);
+            }
+        }
     }
 
     const data = await client.query({
@@ -93,6 +96,7 @@ export default async function handler(req, res) {
           {
             users {
               address
+              washtrader
               soldTo {
                 address
                }
@@ -107,7 +111,15 @@ export default async function handler(req, res) {
           }`
     });
 
-    const formattedData = formatHistoryData(data.data)
+    let washtraders = []
+
+    data.data.users.forEach((element) => {
+        if (element.washtrader == true) {
+            washtraders.push(element)
+        }
+    })
+
+    const formattedData = formatHistoryData(data.data, washtraders)
 
     res.status(200).send(formattedData);
 }
@@ -123,8 +135,8 @@ async function requestFromME(name: string): Promise<any> {
 
     let list = []
 
-    for (let i = 0; i < 10; i++) {
-        const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=${i*100}&limit=100`)
+    for (let i = 0; i < 1000; i++) {
+        const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=${i * 100}&limit=100`)
         const data = await response.json();
         list.push(data)
     }

@@ -1,5 +1,6 @@
+import {element} from "prop-types";
 
-export default function formatHistoryData(data): { nodes: any[]; links: any[]; } {
+export default function formatHistoryData(data, washtraders: string[]): { nodes: any[]; links: any[]; } {
     const nodes = []
     const links = []
 
@@ -9,7 +10,7 @@ export default function formatHistoryData(data): { nodes: any[]; links: any[]; }
 
     data?.users.forEach( (user) => {
 
-        if (user.address == '8GSiZbxkd6nR2sNRftCNuAaPyX9Aoa9ER8RsiZDNzGuM') {
+        if (washtraders.some((element) => element == user.address)) {
             nodes.push({
                 id: user.address,
                 group: 2
