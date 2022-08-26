@@ -37,6 +37,47 @@ export default async function handler(req, res) {
         const data = await response.json();
 
         await storeNewCollection(name.replaceAll('_', '.'), JSON.stringify(data));
+
+        const formattedData = formatMagicEdenToGraphData(data.data)
+
+        const allNodes = formattedData.nodes
+        const nodesParseMap = new Map()
+
+        allNodes.forEach((element, index) => nodesParseMap.set(element.id, index))
+
+        console.log('NodesParseMap: ', nodesParseMap)
+
+        const graph: Graph = new Graph(allNodes.length)
+
+        const parsedLinks: {source: number, target: number}[] = []
+
+        formattedData.links.forEach(element => {
+            parsedLinks.push({source: nodesParseMap.get(element.source), target: nodesParseMap.get(element.target)})
+        })
+
+        console.log('parsedLinks: ', parsedLinks)
+
+        parsedLinks.forEach(element => {
+            graph.addEdge(element.source, element.target)
+        })
+
+        const sccs = graph.SCC()
+
+        console.log('sccs: ', sccs)
+
+        let parsedSCCs = []
+        sccs.forEach((element) => {
+            console.log('element: ', element)
+            let x = []
+            element.forEach((value) => {
+                x.push(getByValue(nodesParseMap, value))
+            })
+            parsedSCCs.push(x)
+        })
+
+        console.log('sccs in normal values: ', parsedSCCs)
+
+        parsedSCCs.forEach((address) => markAddressAsWashTrader(address, name))
     }
 
     const data = await client.query({
@@ -59,46 +100,6 @@ export default async function handler(req, res) {
     });
 
     const formattedData = formatHistoryData(data.data)
-
-
-    const allNodes = formattedData.nodes
-    const nodesParseMap = new Map()
-
-    allNodes.forEach((element, index) => nodesParseMap.set(element.id, index))
-
-    console.log('NodesParseMap: ', nodesParseMap)
-
-    const graph: Graph = new Graph(allNodes.length)
-
-    const parsedLinks: {source: number, target: number}[] = []
-
-    formattedData.links.forEach(element => {
-        parsedLinks.push({source: nodesParseMap.get(element.source), target: nodesParseMap.get(element.target)})
-    })
-
-    console.log('parsedLinks: ', parsedLinks)
-
-    parsedLinks.forEach(element => {
-        graph.addEdge(element.source, element.target)
-    })
-
-    const sccs = graph.SCC()
-
-    console.log('sccs: ', sccs)
-
-    let parsedSCCs = []
-    sccs.forEach((element) => {
-        console.log('element: ', element)
-        let x = []
-        element.forEach((value) => {
-            x.push(getByValue(nodesParseMap, value))
-        })
-        parsedSCCs.push(x)
-    })
-
-    console.log('sccs in normal values: ', parsedSCCs)
-
-    parsedSCCs.forEach((address) => markAddressAsWashTrader(address, name))
 
     res.status(200).send(formattedData);
 }
