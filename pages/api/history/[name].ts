@@ -29,42 +29,35 @@ export default async function handler(req, res) {
         return;
     }
 
-    if (isCollectionStored) {
-        const data = await client.query({
-            query: gql`
-          {
-            users {
-              address
-              soldTo {
-                address
-               }
-              soldToConnection {
-                edges{
-                  price
-                  marketplace
-                }
-              }
-            }
-          }`
-        });
+    if (!isCollectionStored) {
+        console.log('Anfrage an MagicEden')
 
-        const formattedData = formatHistoryData(data.data)
-        res.status(200).send(formattedData)
-        return;
+        const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=0&limit=100`)
+        console.log('json from MagicEden', response.status)
+        const data = await response.json();
+
+        await storeNewCollection(name.replaceAll('_', '.'), JSON.stringify(data));
     }
 
-    console.log('Anfrage an MagicEden')
+    const data = await client.query({
+        query: gql`
+      {
+        users {
+          address
+          soldTo {
+            address
+           }
+          soldToConnection {
+            edges{
+              price
+              marketplace
+            }
+          }
+        }
+      }`
+    });
 
-    const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=0&limit=100`)
-    console.log('json from MagicEden', response.status)
-    const data = await response.json();
-
-    await storeNewCollection(name.replaceAll('_', '.'), JSON.stringify(data));
-
-    const filteredData = data.filter(function (data) {
-        return data.type == 'buyNow';
-    })
-    const formattedData = formatMagicEdenToGraphData(filteredData)
+    const formattedData = formatHistoryData(data.data)
 
 
     const allNodes = formattedData.nodes
