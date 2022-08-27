@@ -1,5 +1,4 @@
 import neo4j from "neo4j-driver";
-import {element} from "prop-types";
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
@@ -20,9 +19,5 @@ export default async function getData(name: String) {
         console.log(e)
     }
 
-    let test = data.records.map((element) => element._fields)
-
-    console.log(test)
-
-    return test
+    return data.records.map((element) => element._fields)
 }

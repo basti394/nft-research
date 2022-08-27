@@ -96,13 +96,20 @@ export default async function handler(req, res) {
 
     let washtraders = []
 
-    data.data.users.forEach((element) => {
-        if (element.washtrader == true) {
-            washtraders.push(element)
+    data.forEach((element) => {
+        if (element[0].properties.washtrader == true) {
+            washtraders.push(element[0].properties.address)
+        }
+        if (element[2].properties.washtrader == true) {
+            washtraders.push(element[2].properties.address)
         }
     })
 
-    const formattedData = formatHistoryData(data.data, washtraders)
+    const washtraderSet = new Set<string>(washtraders)
+
+    const formattedData = formatHistoryData(data, washtraderSet)
+
+    console.log('Data formatted')
 
     res.status(200).send(formattedData);
 }

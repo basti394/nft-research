@@ -7,7 +7,7 @@ import {
   Spinner,
   Flex, Spacer,
   Grid,
-  GridItem, Box, Button
+  GridItem, Box, Button, Stack
 } from '@chakra-ui/react'
 import {
   Menu,
@@ -22,12 +22,13 @@ import {
 import styles from "../styles/Home.module.css";
 import getSingleTokenGraph from "../lib/getSingleTokenGraphs";
 import {element} from "prop-types";
+import getSCCs from "../lib/getSCCs";
 
 const Graph = dynamic(() => import('../components/graph2d'), {
   ssr: false
 })
 
-let allTokenGraphs = []
+let allSCCs: { nodes: any[]; links: any[] }
 let allData = { nodes: [], links: [] }
 
 export default function Index(){
@@ -53,11 +54,14 @@ export default function Index(){
         setLoading(false)
         console.log('sdfasdfasdfasdfasdf', l)
         allData = l
-        allTokenGraphs = getSingleTokenGraph(l)
+        allSCCs = getSCCs(l)
         return l
       }))
     }
-    fetchData().then(() => setLoading(false));
+    fetchData().then(() => {
+      setLoading(false)
+      console.log('data fetched')
+    });
   }, [input])
 
   const handleSubmit = (event) => {
@@ -66,9 +70,13 @@ export default function Index(){
 
   if (loading) return <Spinner size='xl' />
 
-  function handleTokenSelect(data: {nodes: any[], links: any[]}) {
+  function handleShowSCC(data: {nodes: any[], links: any[]}) {
     setData(data)
   }
+
+  console.log('Load ui')
+  console.log(allSCCs)
+  console.log(data)
 
   return (
       <Box h='100%'>
@@ -100,26 +108,10 @@ export default function Index(){
                 </Box>
                 <Spacer />
                 <Box w='30%' m={[2, 3]}>
-                  <Menu>
-                    <MenuButton as={Button} w='100%'>
-                      Select Token
-                    </MenuButton>
-                    <MenuList>
-                      <MenuItem onClick={() => handleTokenSelect(allData)}>
-                        Entire Collection
-                      </MenuItem>
-                      <MenuDivider />
-                      {
-                        allTokenGraphs.map(element =>
-                        <MenuItem
-                            key={element.index}
-                            onClick={() => handleTokenSelect(element)}
-                        >
-                          {element.links[0].token}
-                        </MenuItem>)
-                      }
-                    </MenuList>
-                  </Menu>
+                  <Stack direction='row' spacing={4}>
+                    <Button onClick={() => handleShowSCC(allSCCs)}>Show washtrades</Button>
+                    <Button onClick={() => handleShowSCC(allData)}>Show all</Button>
+                  </Stack>
                 </Box>
               </Flex>
         }

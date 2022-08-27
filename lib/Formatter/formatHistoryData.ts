@@ -1,58 +1,56 @@
-import {element} from "prop-types";
+import {element, node} from "prop-types";
 
-export default function formatHistoryData(data, washtraders: string[]): { nodes: any[]; links: any[]; } {
+export default function formatHistoryData(data, washtraders: Set<string>): { nodes: any[]; links: any[]; } {
     const nodes = []
     const links = []
 
-    if (!data?.users) {
-        return { nodes, links }
-    }
+    console.log(washtraders)
 
-    data?.users.forEach( (user) => {
+    data.forEach((element) => {
 
-        if (washtraders.some((element) => element == user.address)) {
-            nodes.push({
-                id: user.address,
-                group: 2
-            })
-        } else {
-            nodes.push({
-                id: user.address,
-                group: 1
-            })
-        }
+        let node1 = element[0]
+        let node2 = element[2]
 
-        if (user.soldTo != null && user.soldToConnection != null) {
-            user.soldTo.forEach((soldTo, index) => {
-
-                let previous = 0;
-
-                links.forEach((link) => {
-                    if ((link.source == user.address || link.source == soldTo.address) && (link.target == user.address || link.target == soldTo.address)) {
-                        previous = previous + 1;
-                    }
+        if (!nodes.some((node) => {return node.id == node1.properties.address})) {
+            if (washtraders.has(node1.properties.address)) {
+                console.log('einer der mal group 3 ist')
+                nodes.push({
+                    id: node1.properties.address,
+                    washtrader: node1.properties.washtrader,
+                    group: 2
                 })
-
-                if (previous % 2 == 0) {
-                    links.push({
-                        source: user.address,
-                        target: soldTo.address,
-                        curvature: 0.3 * previous,
-                        token: user.soldToConnection.edges[index].token,
-                        name: `price: ${user.soldToConnection.edges[index].price} SOL \n marketplace: ${user.soldToConnection.edges[index].marketplace} \n token: ${user.soldToConnection.edges[index].token}`
-                    })
-                } else {
-                    links.push({
-                        source: user.address,
-                        target: soldTo.address,
-                        token: user.soldToConnection.edges[index].token,
-                        curvature: -0.3 * previous,
-                        name: `price: ${user.soldToConnection.edges[index].price} SOL \n marketplace: ${user.soldToConnection.edges[index].marketplace} \n token: ${user.soldToConnection.edges[index].token}`
-                    })
-                }
-
-            });
+            } else {
+                nodes.push({
+                    id: node1.properties.address,
+                    washtrader: node1.properties.washtrader,
+                    group: 1
+                })
+            }
         }
+
+        if (!nodes.some((node) => {return node.id == node2.properties.address})) {
+            if (washtraders.has(node2.properties.address)) {
+                nodes.push({
+                    id: node2.properties.address,
+                    washtrader: node2.properties.washtrader,
+                    group: 2
+                })
+            } else {
+                nodes.push({
+                    id: node2.properties.address,
+                    washtrader: node2.properties.washtrader,
+                    group: 1
+                })
+            }
+        }
+
+        links.push({
+            source: node1.properties.address,
+            target: node2.properties.address,
+            flagged: element[1].properties.flagged,
+            curvature: 0,
+            name: `price: ${element[1].properties.price} SOL \n marketplace: ${element[1].properties.marketplace} \n token: ${element[1].properties.token}`
+        })
     })
 
     return { nodes, links }

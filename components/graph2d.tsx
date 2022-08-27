@@ -23,9 +23,9 @@ export default function Graph2d({ data }) {
     const fgRef = useRef<any>();
     fgRef.current?.d3Force('link').distance(link => 30)
     fgRef.current?.d3Force('charge')
-        .strength(-20)
-        .distanceMax(20)
-        .distanceMin(10)
+        .strength(-10)
+        .distanceMax(150)
+        .distanceMin(100)
 
     function goToAddressPage(address: string) {
         window.open(`https://magiceden.io/u/${address}`)
@@ -45,15 +45,17 @@ export default function Graph2d({ data }) {
         <div>
             <ForceGraph2D
                 onNodeClick={(node, event) => goToAddressPage(node.id.toString())}
-                enableNodeDrag={true}
+                enableNodeDrag={false}
                 ref={fgRef}
                 graphData={data}
-                cooldownTicks={100}
+                cooldownTicks={20}
                 //onEngineStop={() => fgRef.current?.zoomToFit(100, 10)}
-                nodeRelSize={6}
+                nodeRelSize={10}
                 linkCurvature="curvature"
                 linkDirectionalArrowLength={5}
                 nodeLabel="id"
+                nodeAutoColorBy={"group"}
+                //linkAutoColorBy={"group"}
             />
         </div>
     )
