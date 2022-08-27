@@ -8,6 +8,7 @@ import formatMagicEdenToGraphData from "../../../lib/Formatter/formatMagicEdenTo
 import Graph from "../../../lib/Graph";
 import {element} from "prop-types";
 import markAddressAsWashTrader from "../../../lib/markAddressAsWashtrader";
+import getData from "../../../lib/getData";
 
 export default async function handler(req, res) {
     const name = req.query.name;
@@ -91,25 +92,7 @@ export default async function handler(req, res) {
         }
     }
 
-    const data = await client.query({
-        query: gql`
-          {
-            users {
-              address
-              washtrader
-              soldTo {
-                address
-               }
-              soldToConnection {
-                edges{
-                  price
-                  marketplace
-                  token
-                }
-              }
-            }
-          }`
-    });
+    const data = await getData(name)
 
     let washtraders = []
 
