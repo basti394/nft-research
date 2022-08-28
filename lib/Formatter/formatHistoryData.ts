@@ -43,14 +43,26 @@ export default function formatHistoryData(data, washtraders: Set<string>): { nod
                 })
             }
         }
+        if (element[1].properties.flagged) {
+            links.push({
+                source: node1.properties.address,
+                target: node2.properties.address,
+                flagged: element[1].properties.flagged,
+                curvature: 0,
+                group: 1,
+                name: `price: ${element[1].properties.price} SOL \n marketplace: ${element[1].properties.marketplace} \n token: ${element[1].properties.token}`
+            })
+        } else {
+            links.push({
+                source: node1.properties.address,
+                target: node2.properties.address,
+                flagged: element[1].properties.flagged,
+                curvature: 0,
+                group: 2,
+                name: `price: ${element[1].properties.price} SOL \n marketplace: ${element[1].properties.marketplace} \n token: ${element[1].properties.token}`
+            })
+        }
 
-        links.push({
-            source: node1.properties.address,
-            target: node2.properties.address,
-            flagged: element[1].properties.flagged,
-            curvature: 0,
-            name: `price: ${element[1].properties.price} SOL \n marketplace: ${element[1].properties.marketplace} \n token: ${element[1].properties.token}`
-        })
     })
 
     return { nodes, links }

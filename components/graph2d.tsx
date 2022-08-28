@@ -45,17 +45,17 @@ export default function Graph2d({ data }) {
         <div>
             <ForceGraph2D
                 onNodeClick={(node, event) => goToAddressPage(node.id.toString())}
-                enableNodeDrag={false}
+                enableNodeDrag={true}
                 ref={fgRef}
                 graphData={data}
                 cooldownTicks={20}
                 //onEngineStop={() => fgRef.current?.zoomToFit(100, 10)}
-                nodeRelSize={10}
+                nodeRelSize={5}
                 linkCurvature="curvature"
                 linkDirectionalArrowLength={5}
                 nodeLabel="id"
                 nodeAutoColorBy={"group"}
-                //linkAutoColorBy={"group"}
+                linkAutoColorBy={"group"}
             />
         </div>
     )

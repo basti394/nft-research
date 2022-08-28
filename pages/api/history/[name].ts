@@ -9,6 +9,9 @@ import Graph from "../../../lib/Graph";
 import {element} from "prop-types";
 import markAddressAsWashTrader from "../../../lib/markAddressAsWashtrader";
 import getData from "../../../lib/getData";
+import markTransactionAsWashtrade from "../../../lib/markTransactionAsWashtrade";
+
+const threshold = 10
 
 export default async function handler(req, res) {
     const name = req.query.name;
@@ -30,64 +33,165 @@ export default async function handler(req, res) {
         return;
     }
 
+    let dataMe: any[][]
+
     if (!isCollectionStored) {
         console.log('Anfrage an MagicEden')
 
-        let data: any[][] = await requestFromME(name)
+         dataMe = await requestFromME(name)
 
         let newArr = [];
 
-        for(let i = 0; i < data.length; i++)
-        {
-            newArr = newArr.concat(data[i]);
+        for (let i = 0; i < dataMe.length; i++) {
+            newArr = newArr.concat(dataMe[i]);
         }
 
-        data = newArr.filter((element) => element.type == "buyNow")
+        dataMe = newArr.filter((element) => element.type == "buyNow")
 
-        await storeNewCollection(name.replaceAll('_', '.'), JSON.stringify(data));
+        await storeNewCollection(name.replaceAll('_', '.'), JSON.stringify(dataMe));
+    }
 
-        const formattedData = formatMagicEdenToGraphData(data)
+    const formattedDataME = formatMagicEdenToGraphData(dataMe)
 
-        const allNodes = formattedData.nodes
-        const nodesParseMap = new Map()
+    const allNodes = formattedDataME.nodes
+    const nodesParseMap = new Map()
 
-        allNodes.forEach((element, index) => nodesParseMap.set(element.id, index))
+    allNodes.forEach((element, index) => nodesParseMap.set(element.id, index))
 
-        console.log('NodesParseMap: ', nodesParseMap)
+    console.log('NodesParseMap: ', nodesParseMap)
 
-        const graph: Graph = new Graph(allNodes.length)
+    let graph: Graph = new Graph(7)
 
-        const parsedLinks: {source: number, target: number}[] = []
+    let parsedLinks: {source: number, target: number}[] = []
 
-        formattedData.links.forEach(element => {
-            parsedLinks.push({source: nodesParseMap.get(element.source), target: nodesParseMap.get(element.target)})
+    formattedDataME.links.forEach(element => {
+        parsedLinks.push({source: nodesParseMap.get(element.source), target: nodesParseMap.get(element.target)})
+    })
+
+    console.log('parsedLinks: ', parsedLinks)
+
+   parsedLinks = [
+       {source: 0, target: 1},
+       {source: 1, target: 3},
+       {source: 3, target: 2},
+       {source: 2, target: 1},
+       {source: 2, target: 4},
+       {source: 4, target: 5},
+       {source: 5, target: 6},
+       {source: 6, target: 4},
+       {source: 4, target: 5},
+       {source: 5, target: 6},
+       {source: 6, target: 4},
+   ]
+
+    parsedLinks.forEach(element => {
+        graph.addEdge(element.source, element.target)
+    })
+
+    let finalSCCs: number[][] = []
+    let found: boolean = true
+
+    while (found) {
+        console.log('searching sccs')
+        let sccs = graph.SCC()
+
+        console.log(sccs)
+
+        found = sccs.length != 0;
+
+        console.log(found)
+
+        sccs.forEach((scc) => {
+            console.log('scc: ', scc)
+            scc.forEach((element) => {
+                console.log('element: ', element)
+                scc.forEach((element1) => {
+                    console.log('element1: ', element1)
+                    let links = parsedLinks.filter((element2) => element2.source == element && element2.target == element1)
+                    parsedLinks = parsedLinks.filter((element2) => element2.source != element || element2.target != element1)
+
+                    console.log('links before shift: ', links)
+                    console.log('parsedlinks after filter: ', parsedLinks)
+
+                    links.shift()
+
+                    console.log('links after shift: ', links)
+
+                    if (links.length > 0) {
+                        links.forEach((link) => parsedLinks.push(link))
+                    }
+
+                    console.log('parsedlinks after links added', parsedLinks)
+                    console.log('_____________________________')
+                })
+            })
         })
 
-        console.log('parsedLinks: ', parsedLinks)
+        console.log(parsedLinks)
+
+        graph = new Graph(7)
 
         parsedLinks.forEach(element => {
+            console.log(`${element.source} -> ${element.target}`)
             graph.addEdge(element.source, element.target)
         })
 
-        const sccs = graph.SCC()
-
-        console.log('sccs: ', sccs)
-
-        let parsedSCCs = []
         sccs.forEach((element) => {
-            console.log('element: ', element)
-            let x = []
-            element.forEach((value) => {
-                x.push(getByValue(nodesParseMap, value))
-            })
-            parsedSCCs.push(x)
+            if (element.length != 0) {
+                finalSCCs.push(element)
+            }
         })
+    }
 
-        console.log('sccs in normal values: ', parsedSCCs)
+    let parsedSCCs = []
+    finalSCCs.forEach((element) => {
+        console.log('element: ', element)
+        let x = []
+        element.forEach((value) => {
+            x.push(getByValue(nodesParseMap, value))
+        })
+        parsedSCCs.push(x)
+    })
 
-        for (const scc of parsedSCCs) {
-            for (const element1 of scc) {
-                await markAddressAsWashTrader(element1, name);
+    console.log('sccs in normal values: ', parsedSCCs)
+
+    const parsedLinksAsSet: number[][] = parsedSCCs.slice()
+
+    parsedLinksAsSet.forEach((element, index) => {
+        let test = parsedLinksAsSet.filter((test) => areEqual(test, element))
+        if (test.length > 1) {
+            parsedLinksAsSet.splice(index, 1)
+        }
+    })
+    let wtSCCs = []
+
+    parsedLinksAsSet.forEach((element) => {
+        let repetitions = 0
+        parsedSCCs.forEach((element1) => {
+            if (areEqual(element1, element)) {
+                repetitions = repetitions + 1;
+            }
+        })
+        if (repetitions >= threshold) {
+            wtSCCs.push(element)
+        }
+    })
+
+    console.log('wtSCC. ', wtSCCs)
+
+    for (const scc of wtSCCs) {
+        for (const element1 of scc) {
+            await markAddressAsWashTrader(element1, name);
+        }
+    }
+
+    for (const scc of wtSCCs) {
+        for (const element2 of scc) {
+            console.log(element2)
+            console.log(" ")
+            for (const element1 of scc.filter((element) => element != element2)) {
+                console.log("|______", element1)
+                await markTransactionAsWashtrade(element2, element1, name)
             }
         }
     }
@@ -132,4 +236,18 @@ async function requestFromME(name: string): Promise<any> {
     }
 
     return list
+}
+
+function areEqual(array1, array2) {
+    if (array1.length === array2.length) {
+        return array1.every((element, index) => {
+            if (element === array2[index]) {
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    return false;
 }
