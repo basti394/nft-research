@@ -60,7 +60,7 @@ export default async function handler(req, res) {
 
         console.log('NodesParseMap: ', nodesParseMap)
 
-        let graph: Graph = new Graph(7)
+        let graph: Graph = new Graph(allNodes.length)
 
         let parsedLinks: { source: number, target: number }[] = []
 
@@ -107,7 +107,7 @@ export default async function handler(req, res) {
 
             console.log(parsedLinks)
 
-            graph = new Graph(7)
+            graph = new Graph(parsedLinks.length)
 
             parsedLinks.forEach(element => {
                 console.log(`${element.source} -> ${element.target}`)

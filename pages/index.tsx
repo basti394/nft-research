@@ -36,6 +36,9 @@ export default function Index(){
   const [ input, setInput ] = useState('')
   const [ data, setData ] = useState({ nodes: [], links: [] })
   const [ loading, setLoading ] = useState(false)
+  const [ amaountWashtrader, setAmountWashtrader ] = useState(0)
+  const [ washtradedVolume, setWashtradedVolume ] = useState(0)
+  const [ ratioOfVolumes, setRatioOfVolumes ] = useState(0)
 
   useEffect(() => {
     if (input == '') {
@@ -74,8 +77,22 @@ export default function Index(){
     setData(data)
   }
 
-  function handleCalculateStatsClick() {
-    console.log('asdfasdf')
+  async function handleCalculateStatsClick() {
+    const data: {
+      amountOfWashtraders: number,
+      washtradedVolume: number,
+      ratioOfVolumes: number
+    } = await fetch(`/api/washtrades/${input}`, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json; charset=utf-8",
+      },
+      credentials: "same-origin",
+    }).then((res) => res.json())
+
+    setAmountWashtrader(data.amountOfWashtraders)
+    setWashtradedVolume(data.washtradedVolume)
+    setRatioOfVolumes(data.ratioOfVolumes * 100)
   }
 
   return (
@@ -114,6 +131,16 @@ export default function Index(){
                     <Button onClick={() => handleCalculateStatsClick()} colorScheme='teal' variant='solid'>
                       Calculate washtrading statistic
                     </Button>
+                  </Stack>
+                </Box>
+                <Box>
+                  <Stack direction='column'>
+                    <span>{amaountWashtrader}</span>
+                    <br/>
+                    <span>{washtradedVolume} SOl</span>
+                    <br/>
+                    <span>{ratioOfVolumes} %</span>
+                    <br/>
                   </Stack>
                 </Box>
               </Flex>
