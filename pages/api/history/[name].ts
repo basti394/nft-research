@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     if (!isCollectionStored) {
         console.log('Anfrage an MagicEden')
 
-         dataMe = await requestFromME(name)
+        dataMe = await requestFromME(name)
 
         let newArr = [];
 
@@ -49,149 +49,128 @@ export default async function handler(req, res) {
         dataMe = newArr.filter((element) => element.type == "buyNow")
 
         await storeNewCollection(name.replaceAll('_', '.'), JSON.stringify(dataMe));
-    }
 
-    const formattedDataME = formatMagicEdenToGraphData(dataMe)
 
-    const allNodes = formattedDataME.nodes
-    const nodesParseMap = new Map()
+        const formattedDataME = formatMagicEdenToGraphData(dataMe)
 
-    allNodes.forEach((element, index) => nodesParseMap.set(element.id, index))
+        const allNodes = formattedDataME.nodes
+        const nodesParseMap = new Map()
 
-    console.log('NodesParseMap: ', nodesParseMap)
+        allNodes.forEach((element, index) => nodesParseMap.set(element.id, index))
 
-    let graph: Graph = new Graph(7)
+        console.log('NodesParseMap: ', nodesParseMap)
 
-    let parsedLinks: {source: number, target: number}[] = []
+        let graph: Graph = new Graph(7)
 
-    formattedDataME.links.forEach(element => {
-        parsedLinks.push({source: nodesParseMap.get(element.source), target: nodesParseMap.get(element.target)})
-    })
+        let parsedLinks: { source: number, target: number }[] = []
 
-    console.log('parsedLinks: ', parsedLinks)
-
-   parsedLinks = [
-       {source: 0, target: 1},
-       {source: 1, target: 3},
-       {source: 3, target: 2},
-       {source: 2, target: 1},
-       {source: 2, target: 4},
-       {source: 4, target: 5},
-       {source: 5, target: 6},
-       {source: 6, target: 4},
-       {source: 4, target: 5},
-       {source: 5, target: 6},
-       {source: 6, target: 4},
-   ]
-
-    parsedLinks.forEach(element => {
-        graph.addEdge(element.source, element.target)
-    })
-
-    let finalSCCs: number[][] = []
-    let found: boolean = true
-
-    while (found) {
-        console.log('searching sccs')
-        let sccs = graph.SCC()
-
-        console.log(sccs)
-
-        found = sccs.length != 0;
-
-        console.log(found)
-
-        sccs.forEach((scc) => {
-            console.log('scc: ', scc)
-            scc.forEach((element) => {
-                console.log('element: ', element)
-                scc.forEach((element1) => {
-                    console.log('element1: ', element1)
-                    let links = parsedLinks.filter((element2) => element2.source == element && element2.target == element1)
-                    parsedLinks = parsedLinks.filter((element2) => element2.source != element || element2.target != element1)
-
-                    console.log('links before shift: ', links)
-                    console.log('parsedlinks after filter: ', parsedLinks)
-
-                    links.shift()
-
-                    console.log('links after shift: ', links)
-
-                    if (links.length > 0) {
-                        links.forEach((link) => parsedLinks.push(link))
-                    }
-
-                    console.log('parsedlinks after links added', parsedLinks)
-                    console.log('_____________________________')
-                })
-            })
+        formattedDataME.links.forEach(element => {
+            parsedLinks.push({source: nodesParseMap.get(element.source), target: nodesParseMap.get(element.target)})
         })
 
-        console.log(parsedLinks)
-
-        graph = new Graph(7)
+        console.log('parsedLinks: ', parsedLinks)
 
         parsedLinks.forEach(element => {
-            console.log(`${element.source} -> ${element.target}`)
             graph.addEdge(element.source, element.target)
         })
 
-        sccs.forEach((element) => {
-            if (element.length != 0) {
-                finalSCCs.push(element)
+        let finalSCCs: number[][] = []
+        let found: boolean = true
+
+        while (found) {
+            console.log('searching sccs')
+            let sccs = graph.SCC()
+
+            console.log(sccs)
+
+            found = sccs.length != 0;
+
+            console.log(found)
+
+            sccs.forEach((scc) => {
+                console.log('scc: ', scc)
+                scc.forEach((element) => {
+                    console.log('element: ', element)
+                    scc.forEach((element1) => {
+                        console.log('element1: ', element1)
+                        let links = parsedLinks.filter((element2) => element2.source == element && element2.target == element1)
+                        parsedLinks = parsedLinks.filter((element2) => element2.source != element || element2.target != element1)
+
+                        links.shift()
+
+                        if (links.length > 0) {
+                            links.forEach((link) => parsedLinks.push(link))
+                        }
+                    })
+                })
+            })
+
+            console.log(parsedLinks)
+
+            graph = new Graph(7)
+
+            parsedLinks.forEach(element => {
+                console.log(`${element.source} -> ${element.target}`)
+                graph.addEdge(element.source, element.target)
+            })
+
+            sccs.forEach((element) => {
+                if (element.length != 0) {
+                    finalSCCs.push(element)
+                }
+            })
+        }
+
+        let parsedSCCs = []
+        finalSCCs.forEach((element) => {
+            console.log('element: ', element)
+            let x = []
+            element.forEach((value) => {
+                x.push(getByValue(nodesParseMap, value))
+            })
+            parsedSCCs.push(x)
+        })
+
+        console.log('sccs in normal values: ', parsedSCCs)
+
+        const parsedLinksAsSet: number[][] = parsedSCCs.slice()
+
+        parsedLinksAsSet.forEach((element, index) => {
+            let test = parsedLinksAsSet.filter((test) => areEqual(test, element))
+            if (test.length > 1) {
+                parsedLinksAsSet.splice(index, 1)
             }
         })
-    }
+        let wtSCCs = []
 
-    let parsedSCCs = []
-    finalSCCs.forEach((element) => {
-        console.log('element: ', element)
-        let x = []
-        element.forEach((value) => {
-            x.push(getByValue(nodesParseMap, value))
-        })
-        parsedSCCs.push(x)
-    })
-
-    console.log('sccs in normal values: ', parsedSCCs)
-
-    const parsedLinksAsSet: number[][] = parsedSCCs.slice()
-
-    parsedLinksAsSet.forEach((element, index) => {
-        let test = parsedLinksAsSet.filter((test) => areEqual(test, element))
-        if (test.length > 1) {
-            parsedLinksAsSet.splice(index, 1)
-        }
-    })
-    let wtSCCs = []
-
-    parsedLinksAsSet.forEach((element) => {
-        let repetitions = 0
-        parsedSCCs.forEach((element1) => {
-            if (areEqual(element1, element)) {
-                repetitions = repetitions + 1;
+        parsedLinksAsSet.forEach((element) => {
+            let repetitions = 0
+            parsedSCCs.forEach((element1) => {
+                if (areEqual(element1, element)) {
+                    repetitions = repetitions + 1;
+                }
+            })
+            if (repetitions >= threshold) {
+                wtSCCs.push(element)
             }
         })
-        if (repetitions >= threshold) {
-            wtSCCs.push(element)
+
+        console.log('wtSCC. ', wtSCCs)
+
+        for (const scc of wtSCCs) {
+            for (const element1 of scc) {
+                await markAddressAsWashTrader(element1, name);
+            }
         }
-    })
 
-    console.log('wtSCC. ', wtSCCs)
-
-    for (const scc of wtSCCs) {
-        for (const element1 of scc) {
-            await markAddressAsWashTrader(element1, name);
-        }
-    }
-
-    for (const scc of wtSCCs) {
-        for (const element2 of scc) {
-            console.log(element2)
-            console.log(" ")
-            for (const element1 of scc.filter((element) => element != element2)) {
-                console.log("|______", element1)
-                await markTransactionAsWashtrade(element2, element1, name)
+        for (const scc of wtSCCs) {
+            for (const element2 of scc) {
+                console.log(element2)
+                console.log(" ")
+                for (const element1 of scc.filter((element) => element != element2)) {
+                    console.log("|______", element1)
+                    await markTransactionAsWashtrade(element2, element1, name)
+                }
             }
         }
     }

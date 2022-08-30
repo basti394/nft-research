@@ -74,9 +74,9 @@ export default function Index(){
     setData(data)
   }
 
-  console.log('Load ui')
-  console.log(allSCCs)
-  console.log(data)
+  function handleCalculateStatsClick() {
+    console.log('asdfasdf')
+  }
 
   return (
       <Box h='100%'>
@@ -111,6 +111,9 @@ export default function Index(){
                   <Stack direction='row' spacing={4}>
                     <Button onClick={() => handleShowSCC(allSCCs)}>Show washtrades</Button>
                     <Button onClick={() => handleShowSCC(allData)}>Show all</Button>
+                    <Button onClick={() => handleCalculateStatsClick()} colorScheme='teal' variant='solid'>
+                      Calculate washtrading statistic
+                    </Button>
                   </Stack>
                 </Box>
               </Flex>
