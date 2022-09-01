@@ -1,6 +1,4 @@
 import neo4j, {LocalDateTime} from "neo4j-driver";
-import {timestamp} from "rxjs/operators";
-import {recordExpression} from "@babel/types";
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
@@ -14,15 +12,16 @@ export default async function checkIfCollectionIsStored(name: string): Promise<b
         throw 'invalid_name';
     }
 
-    const query = 'show databases';
+    const query = `match (n)-[r]->(m) where any(collection in r.collection where collection = "${name}") return n, r, m`;
 
     let result;
 
     try {
         result = await session.run(query)
-    } catch {
-        throw 'db_error';
+        console.log('query run')
+    } catch (e) {
+        throw e;
     }
 
-    return result.records.some((record) => record._fields[0] == name.replaceAll('_', '.'));
+    return result.records.some((record) => record._fields.length != 0);
 }

@@ -9,14 +9,14 @@ export default async function getData(name: String) {
 
     const session = driver.session();
 
-    const query = `use ${name} Match (n)-[r]->(m) Return n,r,m`
+    const query = `Match (n)-[r]->(m) where r.collection = "${name}" Return n,r,m`
 
     let data;
 
     try {
         data = await session.run(query)
     } catch (e) {
-        console.log(e)
+        throw e;
     }
 
     return data.records.map((element) => element._fields)

@@ -13,22 +13,15 @@ export default async function storeNewCollection(name: string, data: string) {
         return
     }
 
-    if (name == "system") {
-        return
-    }
-
     data = data.replace(/"([^"]+)":/g, '$1:');
 
-    const createDatabaseQuery = `create database ${name}`;
-    const createGraphQuery = `use ${name} with ${data} as dataList with [data in dataList where data.type = "buyNow"] as filteredData foreach (data in filteredData | merge (seller:User {address:data.seller, washtrader:false}) merge (buyer:User {address: data.buyer, washtrader:false}) create (seller)-[:SOLDTO {price: data.price, marketplace: data.source, token: data.tokenMint, flagged: false, timeStamp: data.blockTime }]->(buyer) )`;
+    const createGraphQuery = `with ${data} as dataList with [data in dataList where data.type = "buyNow"] as filteredData foreach (data in filteredData | merge (seller:User {address:data.seller, washtrader:false}) merge (buyer:User {address: data.buyer, washtrader:false}) create (seller)-[:SOLDTO {price: data.price, marketplace: data.source, token: data.tokenMint, flagged: false, timeStamp: data.blockTime, collection: "${name}" }]->(buyer) )`;
 
     try {
-        await session.run(createDatabaseQuery);
-        console.log(`"${name}" successfully created`)
         await session.run(createGraphQuery);
         console.log('Data successfully added')
     } catch (e) {
-        console.log(e);
+        throw e;
     }
 }
 

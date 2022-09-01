@@ -10,14 +10,14 @@ export default async function getTotalVolume(name: String): Promise<number> {
 
     const session = driver.session();
 
-    const query = `use ${name} match (n)-[r]->(m) return sum(r.price)`
+    const query = `match (n)-[r]->(m) where r.collection = "${name}" return sum(r.price)`
 
     let data;
 
     try {
         data = await session.run(query)
     } catch (e) {
-        console.log(e)
+        throw e;
     }
     return data.records[0]._fields[0]
 }

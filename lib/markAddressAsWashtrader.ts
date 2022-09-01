@@ -8,11 +8,11 @@ const session = driver.session();
 
 export default async function markAddressAsWashTrader(address: string, collection: string) {
 
-    const query = `use ${collection} MATCH (p:User {address: "${address}"}) SET p.washtrader = true RETURN p`
+    const query = `MATCH (p:User {address: "${address}"}) SET p.washtrader = true RETURN p`
 
     try {
         await session.run(query);
     } catch (e) {
-        console.log(e);
+        throw e;
     }
 }

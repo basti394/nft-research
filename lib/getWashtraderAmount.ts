@@ -10,14 +10,15 @@ export default async function getWashtraderAmount(name: String): Promise<number>
 
     const session = driver.session();
 
-    const query = `use ${name} match (n) where n.washtrader = true return count(*)`
+    //TODO
+    const query = `match (n)-[r]->(m) where n.washtrader = true return count(m), count(n)`
 
     let data;
 
     try {
         data = await session.run(query)
     } catch (e) {
-        console.log(e)
+        throw e;
     }
     return data.records[0]._fields[0]
 }

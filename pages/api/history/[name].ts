@@ -10,19 +10,12 @@ import {element} from "prop-types";
 import markAddressAsWashTrader from "../../../lib/markAddressAsWashtrader";
 import getData from "../../../lib/getData";
 import markTransactionAsWashtrade from "../../../lib/markTransactionAsWashtrade";
+import test from "../../../lib/test";
 
 const threshold = 10
 
 export default async function handler(req, res) {
     const name = req.query.name;
-
-    const client = new ApolloClient({
-        headers: {
-            database: name
-        },
-        uri: 'http://localhost:3000/api/graphql',
-        cache: new InMemoryCache(),
-    });
 
     let isCollectionStored;
 
@@ -48,7 +41,7 @@ export default async function handler(req, res) {
 
         dataMe = newArr.filter((element) => element.type == "buyNow")
 
-        await storeNewCollection(name.replaceAll('_', '.'), JSON.stringify(dataMe));
+        await storeNewCollection(name, JSON.stringify(dataMe));
 
 
         const formattedDataME = formatMagicEdenToGraphData(dataMe)
@@ -110,7 +103,6 @@ export default async function handler(req, res) {
             graph = new Graph(parsedLinks.length)
 
             parsedLinks.forEach(element => {
-                console.log(`${element.source} -> ${element.target}`)
                 graph.addEdge(element.source, element.target)
             })
 
@@ -194,7 +186,7 @@ export default async function handler(req, res) {
 
     console.log('Data formatted')
 
-    res.status(200).send(formattedData);
+    res.status(200).send("formattedData");
 }
 
 function getByValue(map, searchValue) {
