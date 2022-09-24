@@ -53,7 +53,11 @@ export default function Index(){
           "Content-Type": "application/json; charset=utf-8",
         },
         credentials: "same-origin",
-      }).then((res) => res.json()).then((l) => {
+      }).then((res) => {
+        console.log('json')
+        return res.json()
+      }).then((l) => {
+        console.log('json2')
         setLoading(false)
         console.log('sdfasdfasdfasdfasdf', l)
         allData = l

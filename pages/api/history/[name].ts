@@ -169,6 +169,8 @@ export default async function handler(req, res) {
 
     const data = await getData(name)
 
+    console.log(data)
+
     let washtraders = []
 
     data.forEach((element) => {
@@ -186,7 +188,7 @@ export default async function handler(req, res) {
 
     console.log('Data formatted')
 
-    res.status(200).send("formattedData");
+    res.status(200).send(formattedData);
 }
 
 function getByValue(map, searchValue) {

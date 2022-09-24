@@ -55,7 +55,7 @@ export default function Graph2d({ data }) {
                 linkDirectionalArrowLength={5}
                 nodeLabel="id"
                 nodeAutoColorBy={"group"}
-                linkAutoColorBy={"group"}
+//                linkAutoColorBy={"group"}
             />
         </div>
     )

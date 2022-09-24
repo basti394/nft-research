@@ -2,6 +2,8 @@ import {element} from "prop-types";
 
 export default function getSCCs(data): {nodes: any[], links: any[]} {
 
+    console.log('getSCCs out of data: ', data)
+
     let nodes = []
     let links = []
 
