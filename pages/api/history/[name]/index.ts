@@ -1,18 +1,18 @@
-import {ApolloClient, InMemoryCache} from "@apollo/client";
-import {gql} from "apollo-server-micro";
-import formatHistoryData from "../../../lib/Formatter/formatHistoryData";
-import checkIfCollectionIsStored from "../../../lib/checkIfCollectionIsStored";
-import storeNewCollection from "../../../lib/storeNewCollection";
-import foramtMagicEdenToGraphData from "../../../lib/Formatter/formatMagicEdenToGraphData";
-import formatMagicEdenToGraphData from "../../../lib/Formatter/formatMagicEdenToGraphData";
-import Graph from "../../../lib/Graph";
-import {element} from "prop-types";
-import markAddressAsWashTrader from "../../../lib/markAddressAsWashtrader";
-import getData from "../../../lib/getData";
-import markTransactionAsWashtrade from "../../../lib/markTransactionAsWashtrade";
-import test from "../../../lib/test";
+import checkIfCollectionIsStored from "../../../../lib/checkIfCollectionIsStored";
+import storeNewCollection from "../../../../lib/storeNewCollection";
+import formatMagicEdenToGraphData from "../../../../lib/Formatter/formatMagicEdenToGraphData";
+import Graph from "../../../../lib/Graph"
+import markAddressAsWashTrader from "../../../../lib/markAddressAsWashtrader";
+import markTransactionAsWashtrade from "../../../../lib/markTransactionAsWashtrade";
+import getData from "../../../../lib/getData";
+import formatHistoryData from "../../../../lib/Formatter/formatHistoryData";
+import getAmountTrades from "../../../../lib/getAmountTrades";
+import getAmountTradedNFTs from "../../../../lib/getAmountTradedNFTs";
+import getTotalVolume from "../../../../lib/getTotalVolume";
+import getWashTraders from "../../../../lib/getWashtraders";
 
-const threshold = 10
+
+const threshold = 5
 
 export default async function handler(req, res) {
     const name = req.query.name;
@@ -169,26 +169,27 @@ export default async function handler(req, res) {
 
     const data = await getData(name)
 
-    console.log(data)
-
-    let washtraders = []
-
-    data.forEach((element) => {
-        if (element[0].properties.washtrader == true) {
-            washtraders.push(element[0].properties.address)
-        }
-        if (element[2].properties.washtrader == true) {
-            washtraders.push(element[2].properties.address)
-        }
-    })
-
-    const washtraderSet = new Set<string>(washtraders)
+    const washtraderSet = await getWashTraders(name)
 
     const formattedData = formatHistoryData(data, washtraderSet)
 
-    console.log('Data formatted')
+    const amountTrades = await getAmountTrades(name)
 
-    res.status(200).send(formattedData);
+    const amountTradedNFTs = await getAmountTradedNFTs(name)
+
+    const amountTrader = formattedData.nodes.length
+
+    const totalTradingVolume = await getTotalVolume(name)
+
+    console.log(amountTradedNFTs)
+
+    res.status(200).send({
+        data: formattedData,
+        amountTrades: amountTrades,
+        amountTradedNFTs: amountTradedNFTs,
+        amountTrader: amountTrader,
+        totalTradingVolume: totalTradingVolume
+    });
 }
 
 function getByValue(map, searchValue) {
