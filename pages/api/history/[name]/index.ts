@@ -173,13 +173,13 @@ export default async function handler(req, res) {
 
     const formattedData = formatHistoryData(data, washtraderSet)
 
-    const amountTrades = await getAmountTrades(name)
+    const amountTrades = await getAmountTrades(name, null)
 
-    const amountTradedNFTs = await getAmountTradedNFTs(name)
+    const amountTradedNFTs = await getAmountTradedNFTs(name, null)
 
     const amountTrader = formattedData.nodes.length
 
-    const totalTradingVolume = await getTotalVolume(name)
+    const totalTradingVolume = await getTotalVolume(name, null)
 
     console.log(amountTradedNFTs)
 

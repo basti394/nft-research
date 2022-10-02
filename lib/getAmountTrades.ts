@@ -6,11 +6,13 @@ const driver = neo4j.driver(
     { disableLosslessIntegers: true }
 );
 
-export default async function getAmountTrades(name: String): Promise<number> {
+export default async function getAmountTrades(name: String, token: string | null): Promise<number> {
 
     const session = driver.session();
 
-    const query = `match (n)-[r]->(m) where r.collection = "${name}" return count(r)`
+    const query = token == null
+        ? `match (n)-[r]->(m) where r.collection = "${name}" return count(r)`
+        : `match (n)-[r]->(m) where r.collection = "${name}" and r.token = "${token}" return count(r)`
 
     let data;
 

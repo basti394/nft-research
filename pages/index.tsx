@@ -48,10 +48,19 @@ export default function Index(){
   const [ washtradedVolume, setWashtradedVolume ] = useState(0)
   const [ ratioOfVolumes, setRatioOfVolumes ] = useState(0)
   const [ marketplaceDistro, setMarketplaceDistro ] = useState(new Map<string, number>())
+  const [ showingTokenTxs, setShowingTokenTxs ] = useState(false)
 
-  const toast = useToast({
+  const noWTtoast = useToast({
     position: 'bottom-right',
-    title: `No wash trading happened in this collection`,
+    title: `No wash trading happened in these transactions`,
+    containerStyle: {
+      maxWidth: '100%',
+    },
+  })
+
+  const noTransactionToast = useToast({
+    position: 'bottom-right',
+    title: `No transactions found with this token`,
     containerStyle: {
       maxWidth: '100%',
     },
@@ -96,7 +105,10 @@ export default function Index(){
   }
 
   function handleShowSCC(data: {nodes: any[], links: any[]}) {
-    if (data.nodes.length == 0 && data.links.length == 0) return
+    if (data.nodes.length == 0 && data.links.length == 0) {
+      noWTtoast()
+      return
+    }
     setData(data)
   }
 
@@ -120,7 +132,7 @@ export default function Index(){
     }).then(async (res) => await res.json())
 
     if (data.amountOfWashtraders == 0 || data.washtradedVolume == 0) {
-      toast()
+      noWTtoast()
     }
 
     setAmountWashtrader(data.amountOfWashtraders)
@@ -131,8 +143,8 @@ export default function Index(){
   }
 
   async function getTokenHistory(token) {
+    if (token.length == 0) return
     setLoadingToken(true)
-    if (token.isEmpty) return
     console.log('LOL2')
     console.log(token)
     const newData = await fetch(`/api/history/${collectionInput}/${tokenInput}`, {
@@ -145,8 +157,47 @@ export default function Index(){
       return await res.json()
     })
     console.log(newData)
-    setData(newData)
+    if (newData.data.nodes.length == 0) {
+      noTransactionToast()
+      setLoadingToken(false)
+      return
+    }
+    setData(newData.data)
+    allData = newData.data
+    allSCCs = getSCCs(newData.data)
+    setAmountTrades(newData.amountTrades)
+    setAmountTradedNFTs(newData.amountTradedNFTs)
+    setAmountTrader(newData.amountTrader)
+    setTotalTradingVolume(newData.totalTradingVolume)
     setLoadingToken(false)
+    setShowingTokenTxs(true)
+  }
+
+  async function resetGraph() {
+    setShowingTokenTxs(false)
+    setTokenInput("")
+    setLoadingToken(true)
+    const fetchData = async () => {
+      setData(await fetch(`/api/history/${collectionInput}`, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json; charset=utf-8",
+        },
+        credentials: "same-origin",
+      }).then((res) => {
+        return res.json()
+      }).then((l) => {
+        setLoading(false)
+        allData = l.data
+        allSCCs = getSCCs(l.data)
+        setAmountTrades(l.amountTrades)
+        setAmountTradedNFTs(l.amountTradedNFTs)
+        setAmountTrader(l.amountTrader)
+        setTotalTradingVolume(l.totalTradingVolume)
+        return l.data
+      }))
+    }
+    fetchData().then(() => setLoadingToken(false))
   }
 
   return (
@@ -183,7 +234,7 @@ export default function Index(){
                       <Stack direction='column'>
                         <span><b>General Informations</b></span>
                         <span>Shown sales: <b>{amountTrades}</b></span>
-                        <span>Shown seller/buyer: <b>{amountTrader}</b></span>
+                        <span>Shown sellers/buyers: <b>{amountTrader}</b></span>
                         <span>Traded NFTs: <b>{amountTradedNFTs}</b></span>
                         <span>Total trading volume: <b>{totalTradingVolume} SOL</b></span>
                       </Stack>
@@ -196,9 +247,20 @@ export default function Index(){
                             value={tokenInput}
                             onInput={e => setTokenInputWrapper(e)}
                         ></Input>
-                        <Button onClick={async () => await getTokenHistory(tokenInput)} colorScheme='teal' variant='solid'>
-                          Search
-                        </Button>
+                        <Stack direction='row'>
+                          <Button onClick={async () => await getTokenHistory(tokenInput)} colorScheme='teal' variant='solid'>
+                            Search
+                          </Button>
+                          {
+                            showingTokenTxs
+                              ? <Button onClick={async () => await resetGraph()} colorScheme='red' variant='solid'>
+                                  Reset
+                                </Button>
+                              : <div></div>
+                          }
+
+                        </Stack>
+
                         { (loadingToken)
                             ? <Spinner></Spinner>
                             : <div></div>

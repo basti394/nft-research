@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
     const washtradedVolume: number = await getWashtradedVolume(name)
 
-    const totalVolume: number = await getTotalVolume(name)
+    const totalVolume: number = await getTotalVolume(name, null)
 
     const ratioOfTotalVolumeToWashtradedVolume = washtradedVolume/totalVolume
 

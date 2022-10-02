@@ -6,9 +6,13 @@ const driver = neo4j.driver(
     { disableLosslessIntegers: true }
 );
 
-export default async function getAmountTradedNFTs(name: String): Promise<any> {
+export default async function getAmountTradedNFTs(name: String, token: string | null): Promise<any> {
 
     const session = driver.session();
+
+    if (token != null) {
+        return 1
+    }
 
     const query = `match (n)-[r]->(m) where r.collection = "${name}" return distinct r.token`
 

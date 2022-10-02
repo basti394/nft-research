@@ -6,11 +6,13 @@ const driver = neo4j.driver(
     { disableLosslessIntegers: true }
 );
 
-export default async function getTotalVolume(name: String): Promise<number> {
+export default async function getTotalVolume(name: String, token: string | null): Promise<number> {
 
     const session = driver.session();
 
-    const query = `match (n)-[r]->(m) where r.collection = "${name}" return sum(r.price)`
+    const query = token == null
+        ? `match (n)-[r]->(m) where r.collection = "${name}" return sum(r.price)`
+        : `match (n)-[r]->(m) where r.collection = "${name}" and r.token = "${token}" return sum(r.price)`
 
     let data;
 

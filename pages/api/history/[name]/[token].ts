@@ -3,6 +3,9 @@ import getTransaktionOfToken from "../../../../lib/getTransaktionOfToken";
 import formatHistoryData from "../../../../lib/Formatter/formatHistoryData";
 import getData from "../../../../lib/getData";
 import getWashTraders from "../../../../lib/getWashtraders";
+import getAmountTrades from "../../../../lib/getAmountTrades";
+import getAmountTradedNFTs from "../../../../lib/getAmountTradedNFTs";
+import getTotalVolume from "../../../../lib/getTotalVolume";
 
 export default async function handler(req, res) {
     const name = req.query.name;
@@ -15,12 +18,21 @@ export default async function handler(req, res) {
 
     const washTraders = await getWashTraders(name)
 
-    console.log('tokenHistory: ', tokenHistory)
-    console.log('washTraders: ', washTraders)
-
     const formattedData = formatHistoryData(tokenHistory, washTraders)
 
-    console.log(formattedData)
+    const amountTrades = await getAmountTrades(name, token)
 
-    res.status(200).send(formattedData)
+    const amountTradedNFTs = await getAmountTradedNFTs(name, token)
+
+    const amountTrader = formattedData.nodes.length
+
+    const totalTradingVolume = await getTotalVolume(name, token)
+
+    res.status(200).send({
+        data: formattedData,
+        amountTrades: amountTrades,
+        amountTradedNFTs: amountTradedNFTs,
+        amountTrader: amountTrader,
+        totalTradingVolume: totalTradingVolume
+    });
 }
