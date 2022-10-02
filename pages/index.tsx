@@ -118,12 +118,17 @@ export default function Index(){
 
   async function handleCalculateStatsClick() {
     setLoadingCalculation(true)
+    const url = (tokenInput == '')
+        ? `/api/washtrades/${collectionInput}`
+        : `/api/washtrades/${collectionInput}?token=${tokenInput}`
+    console.log(url)
+
     const data: {
       amountOfWashtraders: number,
       washtradedVolume: number,
       ratioOfVolumes: number,
       marketplaceDistro: Map<string, number>
-    } = await fetch(`/api/washtrades/${collectionInput}`, {
+    } = await fetch(url, {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json; charset=utf-8",
@@ -175,7 +180,7 @@ export default function Index(){
 
   async function resetGraph() {
     setShowingTokenTxs(false)
-    setTokenInput("")
+    setTokenInput('')
     setLoadingToken(true)
     const fetchData = async () => {
       setData(await fetch(`/api/history/${collectionInput}`, {

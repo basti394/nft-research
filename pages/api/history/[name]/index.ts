@@ -179,7 +179,7 @@ export default async function handler(req, res) {
 
     const amountTrader = formattedData.nodes.length
 
-    const totalTradingVolume = await getTotalVolume(name, null)
+    const totalTradingVolume = await getTotalVolume(name, undefined)
 
     console.log(amountTradedNFTs)
 

@@ -6,11 +6,13 @@ const driver = neo4j.driver(
     { disableLosslessIntegers: true }
 );
 
-export default async function getWashtradedVolume(name: String): Promise<number> {
+export default async function getWashtradedVolume(name: String, token: string | undefined): Promise<number> {
 
     const session = driver.session();
 
-    const query = `match (n)-[r]->(m) where r.collection = "${name}" and (r.flagged = true or (n.washtrader = true and m.washtrader = true)) return sum(r.price)`
+    const query = typeof token == "undefined"
+        ? `match (n)-[r]->(m) where r.collection = "${name}" and (r.flagged = true or (n.washtrader = true and m.washtrader = true)) return sum(r.price)`
+        : `match (n)-[r]->(m) where r.collection = "${name}" and r.token = "${token}" and (r.flagged = true or (n.washtrader = true and m.washtrader = true)) return sum(r.price)`
 
     let data;
 

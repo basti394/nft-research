@@ -6,12 +6,13 @@ const driver = neo4j.driver(
     { disableLosslessIntegers: true }
 );
 
-export default async function getWashtraderAmount(name: String): Promise<number> {
+export default async function getWashtraderAmount(name: String, token: string | undefined): Promise<number> {
 
     const session = driver.session();
 
-    //TODO
-    const query = `match (n)-[r]->(m) where n.washtrader = true return count(m), count(n)`
+    const query = typeof token == "undefined"
+        ? `match (n)-[r]-() where r.collection = "${name}" and r.flagged = true return count(DISTINCT n)`
+        : `match (n)-[r]-() where r.collection = "${name}" and r.token = "${token}" and r.flagged = true return count(DISTINCT n)`
 
     let data;
 

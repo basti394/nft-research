@@ -6,11 +6,13 @@ const driver = neo4j.driver(
     { disableLosslessIntegers: true }
 );
 
-export default async function getMarketplaceDistro(name: String): Promise<Map<string, number>> {
+export default async function getMarketplaceDistro(name: String, token: string | undefined): Promise<Map<string, number>> {
 
     const session = driver.session();
 
-    const query = `MATCH ()-[r]->() where r.collection = "${name}" RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
+    const query = typeof token == "undefined"
+        ? `MATCH ()-[r]->() where r.collection = "${name}" and r.flagged = true RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
+        : `MATCH ()-[r]->() where r.collection = "${name}" and r.token = "${token}" and r.flagged = true RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
 
     let data;
 
