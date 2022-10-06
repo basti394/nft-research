@@ -21,7 +21,6 @@
     "apollo-server-micro": "^3.6.7",
     "cytoscape": "^3.21.1",
     "framer-motion": "^6.3.15",
-    "graphql": "^16.3.0",
     "micro": "^9.3.4",
     "neo4j-driver": "^4.4.5",
     "next": "12.1.5",
