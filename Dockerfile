@@ -5,8 +5,8 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
-COPY package.json ./
-RUN npm install --force
+COPY package.json ./package.json
+RUN npm install
 
 
 # Rebuild the source code only when needed
