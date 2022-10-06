@@ -31,7 +31,7 @@ export default function Graph2d({ data }) {
         window.open(`https://magiceden.io/u/${address}`)
     }
 
-    if (data.nodes == []) {
+    if (data.nodes.length == 0) {
         return <Center>
             <Text
                 textAlign="center"
