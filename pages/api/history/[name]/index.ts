@@ -10,6 +10,7 @@ import getAmountTrades from "../../../../lib/getAmountTrades";
 import getAmountTradedNFTs from "../../../../lib/getAmountTradedNFTs";
 import getTotalVolume from "../../../../lib/getTotalVolume";
 import getWashTraders from "../../../../lib/getWashtraders";
+import {delay} from "rxjs/operators";
 
 
 const threshold = 5
@@ -33,16 +34,21 @@ export default async function handler(req, res) {
 
         dataMe = await requestFromME(name)
 
+        console.log("Received Data from Magic Eden")
+
         let newArr = [];
 
         for (let i = 0; i < dataMe.length; i++) {
             newArr = newArr.concat(dataMe[i]);
         }
 
+        console.log("filtering list")
+
         dataMe = newArr.filter((element) => element.type == "buyNow")
 
-        await storeNewCollection(name, JSON.stringify(dataMe));
+        console.log(JSON.stringify(dataMe))
 
+        await storeNewCollection(name, JSON.stringify(dataMe));
 
         const formattedDataME = formatMagicEdenToGraphData(dataMe)
 
@@ -203,9 +209,24 @@ async function requestFromME(name: string): Promise<any> {
 
     let list = []
 
+    let lastData = [""];
+
     for (let i = 0; i < 1000; i++) {
+        if (lastData.length == 0) {
+            break;
+        }
+        console.log("sending request ", i)
         const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=${i * 100}&limit=100`)
+        console.log("received response: ")
+        console.log(response.status)
+        if (response.status == 429) {
+            await new Promise(f => setTimeout(f, 60000));
+            i--;
+            continue;
+        }
         const data = await response.json();
+        lastData = data;
+        console.log(data.length)
         list.push(data)
     }
 
