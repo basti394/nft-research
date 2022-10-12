@@ -14,7 +14,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
-COPY /app/.env.local ./.env.local
+COPY --from=builder /app/.env.local ./.env.local
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
