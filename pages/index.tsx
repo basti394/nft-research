@@ -8,7 +8,7 @@ import {
   Spinner,
   Flex, Spacer,
   Grid,
-  GridItem, Box, Button, Stack, Wrap, useToast
+  GridItem, Box, Button, Stack, Wrap, useToast, WrapItem
 } from '@chakra-ui/react'
 import {
   Menu,
@@ -52,6 +52,7 @@ export default function Index(){
   const [ ratioOfVolumes, setRatioOfVolumes ] = useState(0)
   const [ marketplaceDistro, setMarketplaceDistro ] = useState(new Map<string, number>())
   const [ showingTokenTxs, setShowingTokenTxs ] = useState(false)
+  const [ imageUrl, setImageUrl ] = useState("")
 
   const noWTtoast = useToast({
     position: 'bottom-right',
@@ -177,6 +178,7 @@ export default function Index(){
     setAmountTradedNFTs(newData.amountTradedNFTs)
     setAmountTrader(newData.amountTrader)
     setTotalTradingVolume(newData.totalTradingVolume)
+    setImageUrl(newData.imageUrl)
     setLoadingToken(false)
     setShowingTokenTxs(true)
   }
@@ -184,6 +186,7 @@ export default function Index(){
   async function resetGraph() {
     setShowingTokenTxs(false)
     setTokenInput('')
+    setImageUrl('')
     setLoadingToken(true)
     const fetchData = async () => {
       setData(await fetch(`/api/history/${collectionInput}`, {
@@ -254,15 +257,31 @@ export default function Index(){
                   </Box>
                   <Spacer/>
                   <Box w='30%' m={[2, 3]}>
-                    <Stack direction='column'>
-                      <span><b>General Informations</b></span>
-                      <span>Shown sales: <b>{amountTrades}</b></span>
-                      <span>Shown sellers/buyers: <b>{amountTrader}</b></span>
-                      <span>Traded NFTs: <b>{amountTradedNFTs}</b></span>
-                      <span>Total trading volume: <b>{totalTradingVolume} SOL</b></span>
-                    </Stack>
+                    <Flex>
+                      <Stack direction='column'>
+                        <span><b>General Informations</b></span>
+                        <span>Shown sales: <b>{amountTrades}</b></span>
+                        <span>Shown sellers/buyers: <b>{amountTrader}</b></span>
+                        <span>Traded NFTs: <b>{amountTradedNFTs}</b></span>
+                        <span>Total trading volume: <b>{totalTradingVolume} SOL</b></span>
+                      </Stack>
+                      <Spacer/>
+                      { (imageUrl.length == 0)
+                          ? <div></div>
+                          : <Box height='20%' width='20%'>
+                            <Box borderRadius='lg' overflow='hidden'>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                  src={imageUrl}
+                                  alt='example image'
+                              />
+                            </Box>
+
+                          </Box>
+                      }
+                    </Flex>
                     <Box h='5'></Box>
-                    <Wrap>
+                    <Wrap direction='column'>
                       <Input
                           m={[2, 3]}
                           placeholder='Enter a token address to check'
@@ -281,28 +300,25 @@ export default function Index(){
                               </Button>
                             : <div></div>
                         }
-
-                      </Stack>
-
-                      { (loadingToken)
+                        { (loadingToken)
                           ? <Spinner></Spinner>
                           : <div></div>
-                      }
-                      <br/>
+                        }
+                      </Stack>
                       <Wrap direction='row' spacing={4}>
                         <Button onClick={() => handleShowSCC(allSCCs)}>Show washtrades</Button>
                         <Button onClick={() => handleShowSCC(allData)}>Show all</Button>
-                        <Stack direction='row'>
-                          <Button onClick={() => handleCalculateStatsClick()} colorScheme='teal' variant='solid'>
-                            Calculate washtrading statistic
-                          </Button>
-                          { (loadingCalculation)
-                              ? <Spinner></Spinner>
-                              : <div></div>
-                          }
-                        </Stack>
-
                       </Wrap>
+                      <Stack direction='row'>
+                        <Button onClick={() => handleCalculateStatsClick()} colorScheme='teal' variant='solid'>
+                          Calculate washtrading statistic
+                        </Button>
+                        { (loadingCalculation)
+                            ? <Spinner></Spinner>
+                            : <div></div>
+                        }
+                      </Stack>
+                      <br/>
                       <Box>
                         <Stack direction='column'>
                           <span><b>Wash trading information:</b></span>

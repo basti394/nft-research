@@ -6,6 +6,7 @@ import getWashTraders from "../../../../lib/getWashtraders";
 import getAmountTrades from "../../../../lib/getAmountTrades";
 import getAmountTradedNFTs from "../../../../lib/getAmountTradedNFTs";
 import getTotalVolume from "../../../../lib/getTotalVolume";
+import getTokenImage from "../../../../lib/getTokenImage";
 
 export default async function handler(req, res) {
     const name = req.query.name;
@@ -28,11 +29,14 @@ export default async function handler(req, res) {
 
     const totalTradingVolume = await getTotalVolume(name, token)
 
+    const imageUrl = await getTokenImage(token)
+
     res.status(200).send({
         data: formattedData,
         amountTrades: amountTrades,
         amountTradedNFTs: amountTradedNFTs,
         amountTrader: amountTrader,
-        totalTradingVolume: totalTradingVolume
+        totalTradingVolume: totalTradingVolume,
+        imageUrl: imageUrl
     });
 }
