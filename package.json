@@ -29,6 +29,7 @@
     "react-dom": "18.0.0",
     "react-force-graph": "^1.41.14",
     "react-force-graph-2d": "^1.23.10",
+    "sharp": "^0.31.1",
     "strongly-connected-components": "^1.0.1"
   },
   "devDependencies": {

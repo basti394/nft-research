@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import Image from 'next/image'
 import {useEffect, useState} from "react";
 import {
   Input,
@@ -24,6 +25,8 @@ import getSingleTokenGraph from "../lib/getSingleTokenGraphs";
 import {element} from "prop-types";
 import getSCCs from "../lib/getSCCs";
 import {name} from "next/dist/telemetry/ci-info";
+import {margin} from "polished";
+import {auto} from "@popperjs/core";
 
 const Graph = dynamic(() => import('../components/graph2d'), {
   ssr: false
@@ -225,80 +228,95 @@ export default function Index(){
           ? <Center><Spinner size='xl' /></Center>
           : <div>{
               (data.nodes.length == 0 && data.links.length == 0)
-                  ? <Center>
-                    <Text textAlign="center">
-                      Please enter the name of a NFT collection
-                    </Text>
+                ? <Center>
+                    <Stack direction='column'>
+                      <Text textAlign="center" fontSize='xl'>
+                        Please enter the name of a NFT collection
+                      </Text>
+                      <br/>
+                      <br/>
+                      <Text textAlign="center" fontSize='sm'>
+                        Please consider using the name from the URL of the collection on MagicEden
+                      </Text>
+                      <div>
+                        <Box margin='auto' width='60%' height='60%' borderRadius='lg' overflow='hidden'>
+                          <Image
+                              src={require('../assets/example_name.png')}
+                              alt='example image'
+                          />
+                        </Box>
+                      </div>
+                    </Stack>
                   </Center>
-                  : <Flex>
-                    <Box w='70%' borderWidth='2px' borderRadius='lg' overflow='hidden' m={[2, 3]}>
-                      <Graph data={data}></Graph>
-                    </Box>
-                    <Spacer/>
-                    <Box w='30%' m={[2, 3]}>
-                      <Stack direction='column'>
-                        <span><b>General Informations</b></span>
-                        <span>Shown sales: <b>{amountTrades}</b></span>
-                        <span>Shown sellers/buyers: <b>{amountTrader}</b></span>
-                        <span>Traded NFTs: <b>{amountTradedNFTs}</b></span>
-                        <span>Total trading volume: <b>{totalTradingVolume} SOL</b></span>
-                      </Stack>
-                      <Box h='5'></Box>
-                      <Wrap>
-                        <Input
-                            m={[2, 3]}
-                            placeholder='Enter a token address to check'
-                            variant='filled'
-                            value={tokenInput}
-                            onInput={e => setTokenInputWrapper(e)}
-                        ></Input>
-                        <Stack direction='row'>
-                          <Button onClick={async () => await getTokenHistory(tokenInput)} colorScheme='teal' variant='solid'>
-                            Search
-                          </Button>
-                          {
-                            showingTokenTxs
-                              ? <Button onClick={async () => await resetGraph()} colorScheme='red' variant='solid'>
-                                  Reset
-                                </Button>
-                              : <div></div>
-                          }
-
-                        </Stack>
-
-                        { (loadingToken)
-                            ? <Spinner></Spinner>
+                : <Flex>
+                  <Box w='70%' borderWidth='2px' borderRadius='lg' overflow='hidden' m={[2, 3]}>
+                    <Graph data={data}></Graph>
+                  </Box>
+                  <Spacer/>
+                  <Box w='30%' m={[2, 3]}>
+                    <Stack direction='column'>
+                      <span><b>General Informations</b></span>
+                      <span>Shown sales: <b>{amountTrades}</b></span>
+                      <span>Shown sellers/buyers: <b>{amountTrader}</b></span>
+                      <span>Traded NFTs: <b>{amountTradedNFTs}</b></span>
+                      <span>Total trading volume: <b>{totalTradingVolume} SOL</b></span>
+                    </Stack>
+                    <Box h='5'></Box>
+                    <Wrap>
+                      <Input
+                          m={[2, 3]}
+                          placeholder='Enter a token address to check'
+                          variant='filled'
+                          value={tokenInput}
+                          onInput={e => setTokenInputWrapper(e)}
+                      ></Input>
+                      <Stack direction='row'>
+                        <Button onClick={async () => await getTokenHistory(tokenInput)} colorScheme='teal' variant='solid'>
+                          Search
+                        </Button>
+                        {
+                          showingTokenTxs
+                            ? <Button onClick={async () => await resetGraph()} colorScheme='red' variant='solid'>
+                                Reset
+                              </Button>
                             : <div></div>
                         }
-                        <br/>
-                        <Wrap direction='row' spacing={4}>
-                          <Button onClick={() => handleShowSCC(allSCCs)}>Show washtrades</Button>
-                          <Button onClick={() => handleShowSCC(allData)}>Show all</Button>
-                          <Stack direction='row'>
-                            <Button onClick={() => handleCalculateStatsClick()} colorScheme='teal' variant='solid'>
-                              Calculate washtrading statistic
-                            </Button>
-                            { (loadingCalculation)
-                                ? <Spinner></Spinner>
-                                : <div></div>
-                            }
-                          </Stack>
 
-                        </Wrap>
-                        <Box>
-                          <Stack direction='column'>
-                            <span><b>Wash trading information:</b></span>
-                            <span>Amount of wash traders: <b>{amaountWashtrader}</b></span>
-                            <span>Malicious trading volume: <b>{washtradedVolume} SOL</b></span>
-                            <span>Share of malicious volume: <b>{ratioOfVolumes}%</b></span>
-                            <br/>
-                            <span><b>Marketplace distribution: </b></span>
-                            <span></span>
-                          </Stack>
-                        </Box>
+                      </Stack>
+
+                      { (loadingToken)
+                          ? <Spinner></Spinner>
+                          : <div></div>
+                      }
+                      <br/>
+                      <Wrap direction='row' spacing={4}>
+                        <Button onClick={() => handleShowSCC(allSCCs)}>Show washtrades</Button>
+                        <Button onClick={() => handleShowSCC(allData)}>Show all</Button>
+                        <Stack direction='row'>
+                          <Button onClick={() => handleCalculateStatsClick()} colorScheme='teal' variant='solid'>
+                            Calculate washtrading statistic
+                          </Button>
+                          { (loadingCalculation)
+                              ? <Spinner></Spinner>
+                              : <div></div>
+                          }
+                        </Stack>
+
                       </Wrap>
-                    </Box>
-                  </Flex>
+                      <Box>
+                        <Stack direction='column'>
+                          <span><b>Wash trading information:</b></span>
+                          <span>Amount of wash traders: <b>{amaountWashtrader}</b></span>
+                          <span>Malicious trading volume: <b>{washtradedVolume} SOL</b></span>
+                          <span>Share of malicious volume: <b>{ratioOfVolumes}%</b></span>
+                          <br/>
+                          <span><b>Marketplace distribution: </b></span>
+                          <span></span>
+                        </Stack>
+                      </Box>
+                    </Wrap>
+                  </Box>
+                </Flex>
         }</div>
         }
       </Box>
