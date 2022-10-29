@@ -181,7 +181,6 @@ export default function Index(){
     setTokenInput('')
     setImageUrl('')
     setLoadingToken(true)
-    setMarketplaceDistro([])
     const fetchData = async () => {
       setData(await fetch(`/api/history/${collectionInput}`, {
         headers: {
