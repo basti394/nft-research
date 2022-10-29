@@ -7,26 +7,16 @@ import {
   Text,
   Spinner,
   Flex, Spacer,
-  Grid,
-  GridItem, Box, Button, Stack, Wrap, useToast, WrapItem
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  TableCaption,
+  TableContainer,
+  Box, Button, Stack, Wrap, useToast, Td
 } from '@chakra-ui/react'
-import {
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
-  MenuDivider,
-} from '@chakra-ui/react'
-import styles from "../styles/Home.module.css";
-import getSingleTokenGraph from "../lib/getSingleTokenGraphs";
-import {element} from "prop-types";
 import getSCCs from "../lib/getSCCs";
-import {name} from "next/dist/telemetry/ci-info";
-import {margin} from "polished";
-import {auto} from "@popperjs/core";
 
 const Graph = dynamic(() => import('../components/graph2d'), {
   ssr: false
@@ -50,7 +40,7 @@ export default function Index(){
   const [ amaountWashtrader, setAmountWashtrader ] = useState(0)
   const [ washtradedVolume, setWashtradedVolume ] = useState(0)
   const [ ratioOfVolumes, setRatioOfVolumes ] = useState(0)
-  const [ marketplaceDistro, setMarketplaceDistro ] = useState(new Map<string, number>())
+  const [ marketplaceDistro, setMarketplaceDistro ] = useState([])
   const [ showingTokenTxs, setShowingTokenTxs ] = useState(false)
   const [ imageUrl, setImageUrl ] = useState("")
 
@@ -93,6 +83,7 @@ export default function Index(){
         setAmountTradedNFTs(l.amountTradedNFTs)
         setAmountTrader(l.amountTrader)
         setTotalTradingVolume(l.totalTradingVolume)
+        setMarketplaceDistro(l.marketplaceDistro)
         return l.data
       }))
     }
@@ -131,7 +122,7 @@ export default function Index(){
       amountOfWashtraders: number,
       washtradedVolume: number,
       ratioOfVolumes: number,
-      marketplaceDistro: Map<string, number>
+      marketplaceDistro: any[]
     } = await fetch(url, {
       headers: {
         Accept: "application/json",
@@ -181,6 +172,7 @@ export default function Index(){
     setImageUrl(newData.imageUrl)
     setLoadingToken(false)
     setShowingTokenTxs(true)
+    setMarketplaceDistro(newData.marketplaceDistro)
   }
 
   async function resetGraph() {
@@ -188,6 +180,7 @@ export default function Index(){
     setTokenInput('')
     setImageUrl('')
     setLoadingToken(true)
+    setMarketplaceDistro([])
     const fetchData = async () => {
       setData(await fetch(`/api/history/${collectionInput}`, {
         headers: {
@@ -205,6 +198,7 @@ export default function Index(){
         setAmountTradedNFTs(l.amountTradedNFTs)
         setAmountTrader(l.amountTrader)
         setTotalTradingVolume(l.totalTradingVolume)
+        setMarketplaceDistro(l.marketplaceDistro)
         return l.data
       }))
     }
@@ -327,7 +321,29 @@ export default function Index(){
                           <span>Share of malicious volume: <b>{ratioOfVolumes}%</b></span>
                           <br/>
                           <span><b>Marketplace distribution: </b></span>
-                          <span></span>
+                          <span>
+                            <TableContainer>
+                              <Table variant='simple'>
+                                <TableCaption>Marketplace Distribution</TableCaption>
+                                <Thead>
+                                  <Tr>
+                                    <Th>Marketplace</Th>
+                                    <Th>Amount</Th>
+                                  </Tr>
+                                </Thead>
+                                <Tbody>
+                                  { marketplaceDistro.map((value) => (
+                                          <Tr key='marketDistro'>
+                                            <Td>{value[0]}</Td>
+                                            <Td>{value[1]}</Td>
+                                          </Tr>
+                                      )
+                                    )
+                                  }
+                                </Tbody>
+                              </Table>
+                            </TableContainer>
+                          </span>
                         </Stack>
                       </Box>
                     </Wrap>

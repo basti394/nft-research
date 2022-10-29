@@ -1,4 +1,6 @@
 import neo4j from "neo4j-driver";
+import {queue} from "rxjs";
+import {valueToNode} from "@babel/types";
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
@@ -6,13 +8,25 @@ const driver = neo4j.driver(
     { disableLosslessIntegers: true }
 );
 
-export default async function getMarketplaceDistro(name: String, token: string | undefined): Promise<Map<string, number>> {
+export default async function getMarketplaceDistro(name: String, token: string | undefined, washtrades: boolean): Promise<any[]> {
 
     const session = driver.session();
 
-    const query = typeof token == "undefined"
-        ? `MATCH ()-[r]->() where r.collection = "${name}" and r.flagged = true RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
-        : `MATCH ()-[r]->() where r.collection = "${name}" and r.token = "${token}" and r.flagged = true RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
+    let query;
+
+    if (washtrades) {
+        if (typeof token == "undefined") {
+            query = `MATCH ()-[r]->() where r.collection = "${name}" and r.flagged = true RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
+        } else {
+            query = `MATCH ()-[r]->() where r.collection = "${name}" and r.token = "${token}" and r.flagged = true RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
+        }
+    } else {
+        if (typeof token == "undefined") {
+            query = `MATCH ()-[r]->() where r.collection = "${name}" RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
+        } else {
+            query = `MATCH ()-[r]->() where r.collection = "${name}" and r.token = "${token}" RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
+        }
+    }
 
     let data;
 
@@ -30,5 +44,12 @@ export default async function getMarketplaceDistro(name: String, token: string |
         map.set(marketplace, amount)
     })
 
-    return map
+    return convert(map)
+}
+function convert(original: Map<string, number>): any[] {
+    let multiArray = [];
+    original.forEach((key, value) => {
+        multiArray.push([value, key])
+    })
+    return multiArray;
 }

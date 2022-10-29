@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
     const ratioOfTotalVolumeToWashtradedVolume = washtradedVolume/totalVolume
 
-    const marketplaceDistro = await getMarketplaceDistro(name, token)
+    const marketplaceDistro = await getMarketplaceDistro(name, token, true)
 
     console.log({
         amountOfWashtraders: amountOfWashtraders,

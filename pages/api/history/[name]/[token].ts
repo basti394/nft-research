@@ -7,6 +7,7 @@ import getAmountTrades from "../../../../lib/getAmountTrades";
 import getAmountTradedNFTs from "../../../../lib/getAmountTradedNFTs";
 import getTotalVolume from "../../../../lib/getTotalVolume";
 import getTokenImage from "../../../../lib/getTokenImage";
+import getMarketplaceDistro from "../../../../lib/getMarketplaceDistro";
 
 export default async function handler(req, res) {
     const name = req.query.name;
@@ -31,12 +32,15 @@ export default async function handler(req, res) {
 
     const imageUrl = await getTokenImage(token)
 
+    const marketplaceDistro = await getMarketplaceDistro(name, token, false)
+
     res.status(200).send({
         data: formattedData,
         amountTrades: amountTrades,
         amountTradedNFTs: amountTradedNFTs,
         amountTrader: amountTrader,
         totalTradingVolume: totalTradingVolume,
-        imageUrl: imageUrl
+        imageUrl: imageUrl,
+        marketplaceDistro: marketplaceDistro
     });
 }

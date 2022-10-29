@@ -11,6 +11,7 @@ import getAmountTradedNFTs from "../../../../lib/getAmountTradedNFTs";
 import getTotalVolume from "../../../../lib/getTotalVolume";
 import getWashTraders from "../../../../lib/getWashtraders";
 import {delay} from "rxjs/operators";
+import getMarketplaceDistro from "../../../../lib/getMarketplaceDistro";
 
 
 const threshold = 5
@@ -187,14 +188,15 @@ export default async function handler(req, res) {
 
     const totalTradingVolume = await getTotalVolume(name, undefined)
 
-    console.log(amountTradedNFTs)
+    const marketplaceDistro = await getMarketplaceDistro(name, undefined, false)
 
     res.status(200).send({
         data: formattedData,
         amountTrades: amountTrades,
         amountTradedNFTs: amountTradedNFTs,
         amountTrader: amountTrader,
-        totalTradingVolume: totalTradingVolume
+        totalTradingVolume: totalTradingVolume,
+        marketplaceDistro: marketplaceDistro
     });
 }
 
