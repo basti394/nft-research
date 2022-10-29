@@ -133,12 +133,13 @@ export default function Index(){
 
     if (data.amountOfWashtraders == 0 || data.washtradedVolume == 0) {
       noWTtoast()
+    } else {
+      setMarketplaceDistro(data.marketplaceDistro)
     }
 
     setAmountWashtrader(data.amountOfWashtraders)
     setWashtradedVolume(data.washtradedVolume)
     setRatioOfVolumes(data.ratioOfVolumes * 100)
-    setMarketplaceDistro(data.marketplaceDistro)
     setLoadingCalculation(false)
   }
 
