@@ -213,7 +213,7 @@ async function requestFromME(name: string): Promise<any> {
 
     let lastData = [""];
 
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 3000; i++) {
         if (lastData.length == 0) {
             break;
         }
