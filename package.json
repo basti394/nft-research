@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "run": "npm run build | npm run start",
-    "production": "cross-env NODE_ENV=production run-s build start"
+    "production": "cross-env NODE_ENV=production run-s build start",
+    "test": "jest"
   },
   "dependencies": {
     "@apollo/client": "^3.5.10",
@@ -33,10 +34,14 @@
     "strongly-connected-components": "^1.0.1"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
     "@types/node": "^17.0.23",
     "@types/react": "^18.0.3",
     "eslint": "8.13.0",
     "eslint-config-next": "12.1.5",
+    "jest": "^29.2.2",
+    "jest-environment-jsdom": "^29.2.2",
     "typescript": "^4.6.3"
   }
 }

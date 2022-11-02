@@ -12,9 +12,11 @@ import getTotalVolume from "../../../../lib/getTotalVolume";
 import getWashTraders from "../../../../lib/getWashtraders";
 import {delay} from "rxjs/operators";
 import getMarketplaceDistro from "../../../../lib/getMarketplaceDistro";
+import {all} from "@neo4j/graphql/dist/translate/cypher-builder/expressions/functions/PredicateFunctions";
+import getWTSCCs from "../../../../lib/getWTSCCs";
 
 
-const threshold = 5
+const threshold = 3
 
 export default async function handler(req, res) {
     const name = req.query.name;
@@ -54,105 +56,9 @@ export default async function handler(req, res) {
         const formattedDataME = formatMagicEdenToGraphData(dataMe)
 
         const allNodes = formattedDataME.nodes
-        const nodesParseMap = new Map()
+        const allLinks = formattedDataME.links
 
-        allNodes.forEach((element, index) => nodesParseMap.set(element.id, index))
-
-        console.log('NodesParseMap: ', nodesParseMap)
-
-        let graph: Graph = new Graph(allNodes.length)
-
-        let parsedLinks: { source: number, target: number }[] = []
-
-        formattedDataME.links.forEach(element => {
-            parsedLinks.push({source: nodesParseMap.get(element.source), target: nodesParseMap.get(element.target)})
-        })
-
-        console.log('parsedLinks: ', parsedLinks)
-
-        parsedLinks.forEach(element => {
-            graph.addEdge(element.source, element.target)
-        })
-
-        let finalSCCs: number[][] = []
-        let found: boolean = true
-
-        while (found) {
-            console.log('searching sccs')
-            let sccs = graph.SCC()
-
-            console.log(sccs)
-
-            found = sccs.length != 0;
-
-            console.log(found)
-
-            sccs.forEach((scc) => {
-                console.log('scc: ', scc)
-                scc.forEach((element) => {
-                    console.log('element: ', element)
-                    scc.forEach((element1) => {
-                        console.log('element1: ', element1)
-                        let links = parsedLinks.filter((element2) => element2.source == element && element2.target == element1)
-                        parsedLinks = parsedLinks.filter((element2) => element2.source != element || element2.target != element1)
-
-                        links.shift()
-
-                        if (links.length > 0) {
-                            links.forEach((link) => parsedLinks.push(link))
-                        }
-                    })
-                })
-            })
-
-            console.log(parsedLinks)
-
-            graph = new Graph(parsedLinks.length)
-
-            parsedLinks.forEach(element => {
-                graph.addEdge(element.source, element.target)
-            })
-
-            sccs.forEach((element) => {
-                if (element.length != 0) {
-                    finalSCCs.push(element)
-                }
-            })
-        }
-
-        let parsedSCCs = []
-        finalSCCs.forEach((element) => {
-            console.log('element: ', element)
-            let x = []
-            element.forEach((value) => {
-                x.push(getByValue(nodesParseMap, value))
-            })
-            parsedSCCs.push(x)
-        })
-
-        console.log('sccs in normal values: ', parsedSCCs)
-
-        const parsedLinksAsSet: number[][] = parsedSCCs.slice()
-
-        parsedLinksAsSet.forEach((element, index) => {
-            let test = parsedLinksAsSet.filter((test) => areEqual(test, element))
-            if (test.length > 1) {
-                parsedLinksAsSet.splice(index, 1)
-            }
-        })
-        let wtSCCs = []
-
-        parsedLinksAsSet.forEach((element) => {
-            let repetitions = 0
-            parsedSCCs.forEach((element1) => {
-                if (areEqual(element1, element)) {
-                    repetitions = repetitions + 1;
-                }
-            })
-            if (repetitions >= threshold) {
-                wtSCCs.push(element)
-            }
-        })
+        const wtSCCs = getWTSCCs(allNodes, allLinks, threshold)
 
         console.log('wtSCC. ', wtSCCs)
 
@@ -165,7 +71,6 @@ export default async function handler(req, res) {
         for (const scc of wtSCCs) {
             for (const element2 of scc) {
                 console.log(element2)
-                console.log(" ")
                 for (const element1 of scc.filter((element) => element != element2)) {
                     console.log("|______", element1)
                     await markTransactionAsWashtrade(element2, element1, name)
@@ -214,21 +119,28 @@ async function requestFromME(name: string): Promise<any> {
     let lastData = [""];
 
     for (let i = 0; i < 3000; i++) {
+        if (i == 150) {
+            break;
+        }
         if (lastData.length == 0) {
             break;
         }
         console.log("sending request ", i)
+        console.log("amount to receive ", i * 100)
         const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=${i * 100}&limit=100`)
-        console.log("received response: ")
-        console.log(response.status)
+        console.log("received response: ", response.status)
         if (response.status == 429) {
             await new Promise(f => setTimeout(f, 60000));
             i--;
             continue;
         }
         const data = await response.json();
+        if (response.status != 200) {
+            console.log("data: ", data)
+        }
         lastData = data;
-        console.log(data.length)
+        console.log('data length ',data.length)
+        console.log("-----------------------------------------")
         list.push(data)
     }
 
