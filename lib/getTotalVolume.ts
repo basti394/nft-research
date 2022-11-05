@@ -16,6 +16,8 @@ export default async function getTotalVolume(name: String, token: string | undef
         ? `match (n)-[r]->(m) where r.collection = "${name}" return sum(r.price)`
         : `match (n)-[r]->(m) where r.collection = "${name}" and r.token = "${token}" return sum(r.price)`
 
+    console.log(query)
+
     let data;
 
     try {
@@ -23,5 +25,10 @@ export default async function getTotalVolume(name: String, token: string | undef
     } catch (e) {
         throw e;
     }
+
+    console.log(data)
+
+    console.log()
+
     return data.records[0]._fields[0]
 }

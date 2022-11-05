@@ -134,13 +134,14 @@ describe('SCC detecting Algorithm', function() {
                     name: "loll",
                     token: "aljdf",
                     curvature: "test"
-                },{
+                },
+                {
                     source: "E",
-                target: "F",
-                name: "loll",
-                token: "aljdf",
-                curvature: "test"
-            },
+                    target: "F",
+                    name: "loll",
+                    token: "aljdf",
+                    curvature: "test"
+                },
 
                 {
                     source: "F",

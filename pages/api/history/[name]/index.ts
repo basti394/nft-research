@@ -49,6 +49,9 @@ export default async function handler(req, res) {
 
         dataMe = newArr.filter((element) => element.type == "buyNow")
 
+        console.log(dataMe)
+        console.log(newArr.filter((element) => element.type != "buyNow").length)
+
         console.log(JSON.stringify(dataMe))
 
         await storeNewCollection(name, JSON.stringify(dataMe));
@@ -95,6 +98,15 @@ export default async function handler(req, res) {
 
     const marketplaceDistro = await getMarketplaceDistro(name, undefined, false)
 
+    console.log({
+        data: formattedData,
+        amountTrades: amountTrades,
+        amountTradedNFTs: amountTradedNFTs,
+        amountTrader: amountTrader,
+        totalTradingVolume: totalTradingVolume,
+        marketplaceDistro: marketplaceDistro
+    })
+
     res.status(200).send({
         data: formattedData,
         amountTrades: amountTrades,
@@ -105,13 +117,6 @@ export default async function handler(req, res) {
     });
 }
 
-function getByValue(map, searchValue) {
-    for (let [key, value] of map.entries()) {
-        if (value === searchValue)
-            return key;
-    }
-}
-
 async function requestFromME(name: string): Promise<any> {
 
     let list = []
@@ -119,9 +124,6 @@ async function requestFromME(name: string): Promise<any> {
     let lastData = [""];
 
     for (let i = 0; i < 3000; i++) {
-        if (i == 150) {
-            break;
-        }
         if (lastData.length == 0) {
             break;
         }
@@ -134,6 +136,9 @@ async function requestFromME(name: string): Promise<any> {
             i--;
             continue;
         }
+        if (response.status == 400) {
+            break;
+        }
         const data = await response.json();
         if (response.status != 200) {
             console.log("data: ", data)
@@ -145,14 +150,4 @@ async function requestFromME(name: string): Promise<any> {
     }
 
     return list
-}
-
-function areEqual(array1, array2) {
-    if (array1.length === array2.length) {
-        return array1.every((element, index) => {
-            return element === array2[index];
-        });
-    }
-
-    return false;
 }

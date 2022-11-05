@@ -1,6 +1,4 @@
 import neo4j from "neo4j-driver";
-import {queue} from "rxjs";
-import {valueToNode} from "@babel/types";
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
@@ -27,6 +25,8 @@ export default async function getMarketplaceDistro(name: String, token: string |
             query = `MATCH ()-[r]->() where r.collection = "${name}" and r.token = "${token}" RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
         }
     }
+
+    console.log(query)
 
     let data;
 

@@ -1,5 +1,4 @@
 import neo4j from "neo4j-driver";
-import * as fs from "fs";
 
 const driver = neo4j.driver(
     process.env.NEO4J_URI,
@@ -8,6 +7,8 @@ const driver = neo4j.driver(
 const session = driver.session();
 
 export default async function storeNewCollection(name: string, data: string) {
+
+    console.log(data)
 
     if (data == "[]") {
         return

@@ -223,133 +223,138 @@ export default function Index(){
         {
           (loading)
           ? <Center><Spinner size='xl' /></Center>
-          : <div>{
+          : <div>
+              <div>
               (data.nodes.length == 0 && data.links.length == 0)
-                ? <Center>
-                    <Stack direction='column'>
+              ? <Center>
+                  <Stack direction='column'>
                       <Text textAlign="center" fontSize='xl'>
-                        Please enter the name of a NFT collection
+                          Please enter the name of a NFT collection
                       </Text>
                       <br/>
                       <br/>
                       <Text textAlign="center" fontSize='sm'>
-                        Please consider using the name from the URL of the collection on MagicEden
+                          Please consider using the name from the URL of the collection on MagicEden
                       </Text>
                       <div>
-                        <Box margin='auto' width='60%' height='60%' borderRadius='lg' overflow='hidden'>
-                          <Image
-                              src={require('../assets/example_name.png')}
-                              alt='example image'
-                          />
-                        </Box>
-                      </div>
-                    </Stack>
-                  </Center>
-                : <Flex>
-                  <Box w='70%' borderWidth='2px' borderRadius='lg' overflow='hidden' m={[2, 3]}>
-                    <Graph data={data}></Graph>
-                  </Box>
-                  <Spacer/>
-                  <Box w='30%' m={[2, 3]}>
-                    <Flex>
-                      <Stack direction='column'>
-                        <span><b>General Informations</b></span>
-                        <span>Shown sales: <b>{amountTrades}</b></span>
-                        <span>Shown sellers/buyers: <b>{amountTrader}</b></span>
-                        <span>Traded NFTs: <b>{amountTradedNFTs}</b></span>
-                        <span>Total trading volume: <b>{totalTradingVolume} SOL</b></span>
-                      </Stack>
-                      <Spacer/>
-                      { (imageUrl.length == 0)
-                          ? <div></div>
-                          : <Box height='20%' width='20%'>
-                            <Box borderRadius='lg' overflow='hidden'>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                  src={imageUrl}
+                          <Box margin='auto' width='60%' height='60%' borderRadius='lg' overflow='hidden'>
+                              <Image
+                                  src={require('../assets/example_name.png')}
                                   alt='example image'
                               />
-                            </Box>
-
                           </Box>
-                      }
-                    </Flex>
-                    <Box h='5'></Box>
-                    <Wrap direction='column'>
-                      <Input
-                          m={[2, 3]}
-                          placeholder='Enter a token address to check'
-                          variant='filled'
-                          value={tokenInput}
-                          onInput={e => setTokenInputWrapper(e)}
-                      ></Input>
-                      <Stack direction='row'>
-                        <Button onClick={async () => await getTokenHistory(tokenInput)} colorScheme='teal' variant='solid'>
-                          Search
-                        </Button>
-                        {
-                          showingTokenTxs
-                            ? <Button onClick={async () => await resetGraph()} colorScheme='red' variant='solid'>
-                                Reset
-                              </Button>
-                            : <div></div>
-                        }
-                        { (loadingToken)
-                          ? <Spinner></Spinner>
-                          : <div></div>
-                        }
-                      </Stack>
-                      <Wrap direction='row' spacing={4}>
-                        <Button onClick={() => handleShowSCC(allSCCs)}>Show washtrades</Button>
-                        <Button onClick={() => handleShowSCC(allData)}>Show all</Button>
-                      </Wrap>
-                      <Stack direction='row'>
-                        <Button onClick={() => handleCalculateStatsClick()} colorScheme='teal' variant='solid'>
-                          Calculate washtrading statistic
-                        </Button>
-                        { (loadingCalculation)
-                            ? <Spinner></Spinner>
-                            : <div></div>
-                        }
-                      </Stack>
-                      <br/>
-                      <Box>
-                        <Stack direction='column'>
-                          <span><b>Wash trading information:</b></span>
-                          <span>Amount of wash traders: <b>{amaountWashtrader}</b></span>
-                          <span>Malicious trading volume: <b>{washtradedVolume} SOL</b></span>
-                          <span>Share of malicious volume: <b>{ratioOfVolumes}%</b></span>
-                          <br/>
-                          <span><b>Marketplace distribution: </b></span>
-                          <span>
-                            <TableContainer>
-                              <Table variant='simple'>
-                                <TableCaption>Marketplace Distribution</TableCaption>
-                                <Thead>
-                                  <Tr>
-                                    <Th>Marketplace</Th>
-                                    <Th>Amount</Th>
-                                  </Tr>
-                                </Thead>
-                                <Tbody>
-                                  { marketplaceDistro.map((value) => (
-                                          <Tr key='marketDistro'>
-                                            <Td>{value[0]}</Td>
-                                            <Td>{value[1]}</Td>
-                                          </Tr>
-                                      )
-                                    )
-                                  }
-                                </Tbody>
-                              </Table>
-                            </TableContainer>
-                          </span>
-                        </Stack>
+                      </div>
+                  </Stack>
+              </Center>
+              : <div>
+                  <Flex>
+                      <Box w='70%' borderWidth='2px' borderRadius='lg' overflow='hidden' m={[2, 3]}>
+                          <Graph data={data}></Graph>
                       </Box>
-                    </Wrap>
-                  </Box>
-                </Flex>
-        }</div>
+                      <Spacer/>
+                      <Box w='30%' m={[2, 3]}>
+                          <Flex>
+                              <Stack direction='column'>
+                                  <span><b>General Informations</b></span>
+                                  <span>Shown sales: <b>{amountTrades}</b></span>
+                                  <span>Shown sellers/buyers: <b>{amountTrader}</b></span>
+                                  <span>Traded NFTs: <b>{amountTradedNFTs}</b></span>
+                                  <span>Total trading volume: <b>{totalTradingVolume} SOL</b></span>
+                              </Stack>
+                              <Spacer/>
+                              { (imageUrl.length == 0)
+                              ? <div></div>
+                              : <Box height='20%' width='20%'>
+                                  <Box borderRadius='lg' overflow='hidden'>
+                                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                                      <img
+                                          src={imageUrl}
+                                          alt='example image'
+                                      />
+                                  </Box>
+
+                              </Box>
+                              }
+                          </Flex>
+                          <Box h='5'></Box>
+                          <Wrap direction='column'>
+                              <Input
+                                  m={[2, 3]}
+                                  placeholder='Enter a token address to check'
+                                  variant='filled'
+                                  value={tokenInput}
+                                  onInput={e => setTokenInputWrapper(e)}
+                                  ></Input>
+                              <Stack direction='row'>
+                                  <Button onClick={async () => await getTokenHistory(tokenInput)} colorScheme='teal' variant='solid'>
+                                      Search
+                                  </Button>
+                                  {
+                                      showingTokenTxs
+                                      ? <Button onClick={async () => await resetGraph()} colorScheme='red' variant='solid'>
+                                          Reset
+                                      </Button>
+                                      : <div></div>
+                                  }
+                                  { (loadingToken)
+                                  ? <Spinner></Spinner>
+                                  : <div></div>
+                                  }
+                              </Stack>
+                              <Wrap direction='row' spacing={4}>
+                                  <Button onClick={() => handleShowSCC(allSCCs)}>Show washtrades</Button>
+                                  <Button onClick={() => handleShowSCC(allData)}>Show all</Button>
+                              </Wrap>
+                              <Stack direction='row'>
+                                  <Button onClick={() => handleCalculateStatsClick()} colorScheme='teal' variant='solid'>
+                                      Calculate washtrading statistic
+                                  </Button>
+                                  { (loadingCalculation)
+                                  ? <Spinner></Spinner>
+                                  : <div></div>
+                                  }
+                              </Stack>
+                              <br/>
+                              <Box>
+                                  <Stack direction='column'>
+                                      <span><b>Wash trading information:</b></span>
+                                      <span>Amount of wash traders: <b>{amaountWashtrader}</b></span>
+                                      <span>Malicious trading volume: <b>{washtradedVolume} SOL</b></span>
+                                      <span>Share of malicious volume: <b>{ratioOfVolumes}%</b></span>
+                                      <br/>
+                                      <span><b>Marketplace distribution: </b></span>
+                                      <span>
+                                          <TableContainer>
+                                              <Table variant='simple'>
+                                                  <TableCaption>Marketplace Distribution</TableCaption>
+                                                  <Thead>
+                                                      <Tr>
+                                                          <Th>Marketplace</Th>
+                                                          <Th>Amount</Th>
+                                                      </Tr>
+                                                  </Thead>
+                                                  <Tbody>
+                                                      { marketplaceDistro.map((value) => (
+                                                              <Tr key='marketDistro'>
+                                                                  <Td>{value[0]}</Td>
+                                                                  <Td>{value[1]}</Td>
+                                                              </Tr>
+                                                              )
+                                                              )
+                                                      }
+                                                  </Tbody>
+                                              </Table>
+                                          </TableContainer>
+                                      </span>
+                                  </Stack>
+                              </Box>
+                          </Wrap>
+                      </Box>
+                  </Flex>
+              </div>
+                </div>
+
+        </div>
         }
       </Box>
   )
