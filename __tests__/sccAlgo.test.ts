@@ -170,3 +170,107 @@ describe('SCC detecting Algorithm', function() {
         expect(wtSCCs).toStrictEqual(expectations)
     })
 });
+
+describe('SCC detecting Algorithm', function() {
+
+    test('test for regular cycle', () => {
+
+        const threshold = 1
+
+        const formattedDataME = {
+            nodes: [
+                {id: "A", group: 3},
+                {id: "B", group: 3},
+                {id: "C", group: 3},
+                ],
+            links: [
+                {
+                    source: "A",
+                    target: "B",
+                    name: "lolo",
+                    token: "asdflkasjdf",
+                    curvature: "test"
+                },
+                {
+                    source: "B",
+                    target: "C",
+                    name: "lolo",
+                    token: "asdflkasjdf",
+                    curvature: "test"
+                },
+                {
+                    source: "C",
+                    target: "A",
+                    name: "lolo",
+                    token: "asdflkasjdf",
+                    curvature: "test"
+                },
+                ]
+        }
+
+        const allNodes = formattedDataME.nodes
+        const allLinks = formattedDataME.links
+
+        const wtSCCs = getWTSCCs(allNodes, allLinks, threshold)
+
+        const expectations = [["C", "B", "A"]]
+
+        expect(wtSCCs).toStrictEqual(expectations)
+    })
+});
+
+describe('SCC detecting Algorithm', function() {
+
+    test('test for cycle in scc', () => {
+
+        const threshold = 1
+
+        const formattedDataME = {
+            nodes: [
+                {id: "A", group: 3},
+                {id: "B", group: 3},
+                {id: "C", group: 3},
+                ],
+            links: [
+                {
+                    source: "A",
+                    target: "B",
+                    name: "lolo",
+                    token: "asdflkasjdf",
+                    curvature: "test"
+                },
+                {
+                    source: "B",
+                    target: "A",
+                    name: "lolo",
+                    token: "asdflkasjdf",
+                    curvature: "test"
+                },
+                {
+                    source: "B",
+                    target: "C",
+                    name: "lolo",
+                    token: "asdflkasjdf",
+                    curvature: "test"
+                },
+                {
+                    source: "C",
+                    target: "A",
+                    name: "lolo",
+                    token: "asdflkasjdf",
+                    curvature: "test"
+                },
+                ]
+        }
+
+        const allNodes = formattedDataME.nodes
+        const allLinks = formattedDataME.links
+
+        const wtSCCs = getWTSCCs(allNodes, allLinks, threshold)
+
+        const expectations = [["C", "B", "A"]]
+
+        expect(wtSCCs).toStrictEqual(expectations)
+    })
+});
+
