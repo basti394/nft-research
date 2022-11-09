@@ -15,8 +15,7 @@ import getMarketplaceDistro from "../../../../lib/getMarketplaceDistro";
 import {all} from "@neo4j/graphql/dist/translate/cypher-builder/expressions/functions/PredicateFunctions";
 import getWTSCCs from "../../../../lib/getWTSCCs";
 
-
-const threshold = 3
+const threshold = 5
 
 export default async function handler(req, res) {
     const name = req.query.name;
@@ -48,11 +47,6 @@ export default async function handler(req, res) {
         console.log("filtering list")
 
         dataMe = newArr.filter((element) => element.type == "buyNow")
-
-        console.log(dataMe)
-        console.log(newArr.filter((element) => element.type != "buyNow").length)
-
-        console.log(JSON.stringify(dataMe))
 
         await storeNewCollection(name, JSON.stringify(dataMe));
 
