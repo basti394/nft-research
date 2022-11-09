@@ -1,15 +1,29 @@
 import {element, node} from "prop-types";
 
 export default function formatHistoryData(data, washtraders: Set<string>): { nodes: any[]; links: any[]; } {
-    const nodes = []
-    const links = []
+    let nodes = []
+    let links = []
 
+    let linkOccurrenceList: {source: any, target: any, occurrence: number}[] = []
 
     data.forEach((element) => {
 
         let node1 = element[0]
         let node2 = element[2]
 
+        const linkPredicate = obj => obj.source == node1.properties.address && obj.target == node2.properties.address
+
+        if (linkOccurrenceList.some(linkPredicate)) {
+            linkOccurrenceList.find(linkPredicate).occurrence++
+        } else {
+            linkOccurrenceList.push({
+                source: node1.properties.address,
+                target: node2.properties.address,
+                occurrence: 1
+            })
+        }
+
+        //format nodes
         if (!nodes.some((node) => node.id == node1.properties.address)) {
             if (washtraders.has(node1.properties.address)) {
                 nodes.push({
@@ -42,23 +56,36 @@ export default function formatHistoryData(data, washtraders: Set<string>): { nod
             }
         }
 
-        if (element[1].properties.flagged) {
-            links.push({
-                source: node1.properties.address,
-                target: node2.properties.address,
-                flagged: element[1].properties.flagged,
-                curvature: 0,
-                name: `price: ${element[1].properties.price} SOL \n marketplace: ${element[1].properties.marketplace} \n token: ${element[1].properties.token}`
-            })
+        if (links.some(linkPredicate)) {
+
+            const oldName = links.find(linkPredicate).name.split(" ")
+            oldName.shift()
+            links.find(linkPredicate).name = `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + oldName + `price: ${element[1].properties.price} SOL <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`
+
         } else {
-            links.push({
-                source: node1.properties.address,
-                target: node2.properties.address,
-                flagged: element[1].properties.flagged,
-                curvature: 0,
-                name: `price: ${element[1].properties.price} SOL \n marketplace: ${element[1].properties.marketplace} \n token: ${element[1].properties.token}`
-            })
+            if (element[1].properties.flagged) {
+                links.push({
+                    source: node1.properties.address,
+                    target: node2.properties.address,
+                    flagged: element[1].properties.flagged,
+                    //curvature: (linkOccurrenceList.find(linkPredicate).occurrence - 1) * 0.3,
+                    name: `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + `price: ${element[1].properties.price} SOL <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`,
+                    group: 1
+                })
+            } else {
+                links.push({
+                    source: node1.properties.address,
+                    target: node2.properties.address,
+                    flagged: element[1].properties.flagged,
+                    //curvature: (linkOccurrenceList.find(linkPredicate).occurrence - 1) * 0.3,
+                    name: `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + `price: ${element[1].properties.price} SOL <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`,
+                    group: 2
+                })
+            }
         }
+
+        //format links
+
 
     })
 
