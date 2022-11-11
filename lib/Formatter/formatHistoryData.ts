@@ -14,7 +14,7 @@ export default function formatHistoryData(data, washtraders: Set<string>): { nod
         const linkPredicate = obj => obj.source == node1.properties.address && obj.target == node2.properties.address
 
         if (linkOccurrenceList.some(linkPredicate)) {
-            linkOccurrenceList.find(linkPredicate).occurrence++
+            linkOccurrenceList.find(linkPredicate).occurrence += 1
         } else {
             linkOccurrenceList.push({
                 source: node1.properties.address,
@@ -68,7 +68,6 @@ export default function formatHistoryData(data, washtraders: Set<string>): { nod
                     source: node1.properties.address,
                     target: node2.properties.address,
                     flagged: element[1].properties.flagged,
-                    //curvature: (linkOccurrenceList.find(linkPredicate).occurrence - 1) * 0.3,
                     name: `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + `price: ${element[1].properties.price} SOL <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`,
                     group: 1
                 })
@@ -77,7 +76,6 @@ export default function formatHistoryData(data, washtraders: Set<string>): { nod
                     source: node1.properties.address,
                     target: node2.properties.address,
                     flagged: element[1].properties.flagged,
-                    //curvature: (linkOccurrenceList.find(linkPredicate).occurrence - 1) * 0.3,
                     name: `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + `price: ${element[1].properties.price} SOL <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`,
                     group: 2
                 })

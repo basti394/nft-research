@@ -6,24 +6,16 @@ const driver = neo4j.driver(
     { disableLosslessIntegers: true }
 );
 
-export default async function getMarketplaceDistro(name: String, token: string | undefined, washtrades: boolean): Promise<any[]> {
+export default async function getMarketplaceDistro(name: String, token: string | undefined, washtrades: boolean): Promise<any[][]> {
 
     const session = driver.session();
 
     let query;
 
-    if (washtrades) {
-        if (typeof token == "undefined") {
-            query = `MATCH ()-[r]->() where r.collection = "${name}" and r.flagged = true RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
-        } else {
-            query = `MATCH ()-[r]->() where r.collection = "${name}" and r.token = "${token}" and r.flagged = true RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
-        }
+    if (typeof token == "undefined") {
+        query = `MATCH ()-[r]->() where r.collection = "${name}" RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount, size(collect(case when r.flagged = true then r end))`
     } else {
-        if (typeof token == "undefined") {
-            query = `MATCH ()-[r]->() where r.collection = "${name}" RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
-        } else {
-            query = `MATCH ()-[r]->() where r.collection = "${name}" and r.token = "${token}" RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount`
-        }
+        query = `MATCH ()-[r]->() where r.collection = "${name}" and r.token = "${token}" RETURN r.marketplace AS type, COUNT(r.marketplace) AS amount, size(collect(case when r.flagged = true then r end))`
     }
 
     console.log(query)
@@ -36,20 +28,14 @@ export default async function getMarketplaceDistro(name: String, token: string |
         throw e;
     }
 
-    let map = new Map<string, number>()
+    let marketDistroList: any[][] = []
 
     data.records.forEach(record => {
         const marketplace: string = record._fields[0]
-        const amount: number = record._fields[1]
-        map.set(marketplace, amount)
+        const trades: number = record._fields[1]
+        const washTrades: number = washtrades ? record._fields[2] : 0
+        marketDistroList.push([marketplace, trades, washTrades])
     })
 
-    return convert(map)
-}
-function convert(original: Map<string, number>): any[] {
-    let multiArray = [];
-    original.forEach((key, value) => {
-        multiArray.push([value, key])
-    })
-    return multiArray;
+    return marketDistroList
 }

@@ -11,8 +11,8 @@ export default async function getWashtradedVolume(name: String, token: string | 
     const session = driver.session();
 
     const query = typeof token == "undefined"
-        ? `match (n)-[r]->(m) where r.collection = "${name}" and (r.flagged = true or (n.washtrader = true and m.washtrader = true)) return sum(r.price)`
-        : `match (n)-[r]->(m) where r.collection = "${name}" and r.token = "${token}" and (r.flagged = true or (n.washtrader = true and m.washtrader = true)) return sum(r.price)`
+        ? `match (n)-[r]->(m) where r.collection = "${name}" and r.flagged = true return sum(r.price)`
+        : `match (n)-[r]->(m) where r.collection = "${name}" and r.token = "${token}" and r.flagged = true return sum(r.price)`
 
     let data;
 

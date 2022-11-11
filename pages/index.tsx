@@ -2,21 +2,19 @@ import dynamic from "next/dynamic";
 import Image from 'next/image'
 import {useEffect, useState} from "react";
 import {
-  Input,
-  Center,
-  Text,
-  Spinner,
-  Flex, Spacer,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  TableCaption,
-  TableContainer,
-  Box, Button, Stack, Wrap, useToast, Td
+    Input,
+    Center,
+    Text,
+    Spinner,
+    Flex, Spacer,
+    Box, Button, Stack, Wrap, useToast, WrapItem,
 } from '@chakra-ui/react'
 import getSCCs from "../lib/getSCCs";
+import CollectionInformation from "../components/collectionInformation";
+import getSOLPrice from "../lib/getSOLPrice";
+import CollectionWTInformation from "../components/collectionWTInformation";
+import MarketPlaceDistro from "../components/marketPlaceDistro";
+import NFT from "../components/nft";
 
 const Graph = dynamic(() => import('../components/graph2d'), {
   ssr: false
@@ -44,6 +42,7 @@ export default function Index(){
   const [ marketplaceDistro, setMarketplaceDistro ] = useState([])
   const [ showingTokenTxs, setShowingTokenTxs ] = useState(false)
   const [ imageUrl, setImageUrl ] = useState("")
+  const [ solPrice, setSolPrice ] = useState(0)
 
   const noWTtoast = useToast({
     position: 'bottom-right',
@@ -68,25 +67,26 @@ export default function Index(){
     console.log('request to backend')
     setLoading(true)
     const fetchData = async () => {
-      setData(await fetch(`/api/history/${collectionInput}`, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json; charset=utf-8",
-        },
-        credentials: "same-origin",
-      }).then((res) => {
-        return res.json()
-      }).then((l) => {
-        setLoading(false)
-        allData = l.data
-        allSCCs = getSCCs(l.data)
-        setAmountTrades(l.amountTrades)
-        setAmountTradedNFTs(l.amountTradedNFTs)
-        setAmountTrader(l.amountTrader)
-        setTotalTradingVolume(l.totalTradingVolume)
-        setMarketplaceDistro(l.marketplaceDistro)
-        return l.data
-      }))
+        setData(await fetch(`/api/history/${collectionInput}`, {
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json; charset=utf-8",
+            },
+            credentials: "same-origin",
+        }).then((res) => {
+            return res.json()
+        }).then(async (l) => {
+            setLoading(false)
+            allData = l.data
+            allSCCs = getSCCs(l.data)
+            setAmountTrades(l.amountTrades)
+            setAmountTradedNFTs(l.amountTradedNFTs)
+            setAmountTrader(l.amountTrader)
+            setTotalTradingVolume(l.totalTradingVolume)
+            setMarketplaceDistro(l.marketplaceDistro)
+            setSolPrice(await getSOLPrice())
+            return l.data
+        }))
     }
     fetchData().then(() => {
       setLoading(false)
@@ -234,12 +234,12 @@ export default function Index(){
                   {(data.nodes.length == 0 && data.links.length == 0)
                   ? <Center>
                       <Stack direction='column'>
-                          <Text textAlign="center" fontSize='xl'>
+                          <Text textAlign="center" fontSize='2xl'>
                               Please enter the name of a NFT collection
                           </Text>
                           <br/>
                           <br/>
-                          <Text textAlign="center" fontSize='xl'>
+                          <Text textAlign="center" fontSize='2xl'>
                               Please consider using the name from the URL of the collection on MagicEden
                           </Text>
                           <div>
@@ -254,113 +254,83 @@ export default function Index(){
                   </Center>
                   : <div>
                       <Flex>
-                          <Box w='70%' borderWidth='2px' borderRadius='lg' overflow='hidden' m={[2, 3]}>
+                          <Box w='70%' borderWidth='2px' borderRadius='lg' overflow='hidden' m={[2, 3]} borderColor='gray.100'>
                               <Graph data={data}></Graph>
                           </Box>
                           <Spacer/>
                           <Box w='30%' m={[2, 3]}>
-                              <Flex>
-                                  <Stack direction='column'>
-                                      <span><b>General Informations</b></span>
-                                      <span>Shown sales: <b>{amountTrades}</b></span>
-                                      <span>Shown sellers/buyers: <b>{amountTrader}</b></span>
-                                      <span>Traded NFTs: <b>{amountTradedNFTs}</b></span>
-                                      <span>Total trading volume: <b>{totalTradingVolume} SOL</b></span>
-                                  </Stack>
-                                  <Spacer/>
-                                  { (imageUrl.length == 0)
-                                  ? <div></div>
-                                  : <Box height='20%' width='20%'>
-                                      <Box borderRadius='lg' overflow='hidden'>
-                                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                                          <img
-                                              src={imageUrl}
-                                              alt='example image'
-                                          />
-                                      </Box>
-
+                              <CollectionInformation
+                                  amountTrades={amountTrades}
+                                  amountTrader={amountTrader}
+                                  amountTradedNFTs={amountTradedNFTs}
+                                  totalTradingVolume={totalTradingVolume}
+                                  solPrice={solPrice}
+                              ></CollectionInformation>
+                              <br/>
+                              <Stack direction='column'>
+                                  <CollectionWTInformation
+                                      washTrades={amountWashtrades}
+                                      washTrader={amountWashtraders}
+                                      totalWashTradedVolume={washtradedVolume}
+                                      volumeRatio={ratioOfVolumes}
+                                      solPrice={solPrice}
+                                      ></CollectionWTInformation>
+                                  <Box w='30%'>
+                                      <Button
+                                          onClick={() => handleCalculateStatsClick()}
+                                          isLoading={loadingCalculation}
+                                          loadingText='Calculate washtrading statistic'
+                                          backgroundColor='#0079B6'
+                                          color='white'
+                                          colorScheme='blue'
+                                          variant='solid'
+                                          >
+                                          Calculate washtrading statistic
+                                      </Button>
                                   </Box>
-                                  }
-                              </Flex>
-                              <Box h='5'></Box>
-                              <Wrap direction='column'>
+                                </Stack>
+                              <br/>
+                              <Stack direction='column'>
                                   <Input
-                                      m={[2, 3]}
                                       placeholder='Enter a token address to check'
                                       variant='filled'
                                       value={tokenInput}
                                       onInput={e => setTokenInputWrapper(e)}
-                                      ></Input>
-                                  <Stack direction='row'>
-                                      <Button onClick={async () => await getTokenHistory(tokenInput)} colorScheme='teal' variant='solid'>
-                                          Search
-                                      </Button>
-                                      {
-                                          showingTokenTxs
-                                          ? <Button onClick={async () => await resetGraph()} colorScheme='red' variant='solid'>
-                                              Reset
+                                  ></Input>
+                                  <Wrap direction='row'>
+                                      <WrapItem>
+                                          <Button onClick={async () => await getTokenHistory(tokenInput)} isLoading={loadingToken} loadingText='Search' backgroundColor='#0079B6' color='white' colorScheme='blue'  variant='solid'>
+                                             Search
                                           </Button>
-                                          : <div></div>
-                                      }
-                                      { (loadingToken)
-                                      ? <Spinner></Spinner>
-                                      : <div></div>
-                                      }
-                                  </Stack>
+                                      </WrapItem>
+
+                                      <WrapItem>
+                                          {
+                                              showingTokenTxs
+                                              ? <Button onClick={async () => await resetGraph()} colorScheme='red' variant='solid'>
+                                                  Reset
+                                              </Button>
+                                              : <div></div>
+                                          }
+                                      </WrapItem>
+
+                                      <WrapItem>
+                                          <NFT image={imageUrl}></NFT>
+                                      </WrapItem>
+                                  </Wrap>
+                                  <br/>
                                   <Wrap direction='row' spacing={4}>
                                       <Button onClick={() => handleShowSCC(allSCCs)}>Show washtrades</Button>
                                       <Button onClick={() => handleShowSCC(allData)}>Show all</Button>
                                   </Wrap>
-                                  <Stack direction='row'>
-                                      <Button onClick={() => handleCalculateStatsClick()} colorScheme='teal' variant='solid'>
-                                          Calculate washtrading statistic
-                                      </Button>
-                                      { (loadingCalculation)
-                                      ? <Spinner></Spinner>
-                                      : <div></div>
-                                      }
-                                  </Stack>
                                   <br/>
-                                  <Box>
-                                      <Stack direction='column'>
-                                          <span><b>Wash trading information:</b></span>
-                                          <span>Amount of wash traders: <b>{amountWashtraders}</b></span>
-                                          <span>Amonut of wash trades: <b>{amountWashtrades}</b></span>
-                                          <span>Malicious trading volume: <b>{washtradedVolume} SOL</b></span>
-                                          <span>Share of malicious volume: <b>{ratioOfVolumes}%</b></span>
-                                          <br/>
-                                          <span><b>Marketplace distribution: </b></span>
-                                          <span>
-                                              <TableContainer>
-                                                  <Table variant='simple'>
-                                                      <TableCaption>Marketplace Distribution</TableCaption>
-                                                      <Thead>
-                                                          <Tr>
-                                                              <Th>Marketplace</Th>
-                                                              <Th>Amount</Th>
-                                                          </Tr>
-                                                      </Thead>
-                                                      <Tbody>
-                                                          { marketplaceDistro.map((value) => (
-                                                                  <Tr key='marketDistro'>
-                                                                      <Td>{value[0]}</Td>
-                                                                      <Td>{value[1]}</Td>
-                                                                  </Tr>
-                                                                  )
-                                                                  )
-                                                          }
-                                                      </Tbody>
-                                                  </Table>
-                                              </TableContainer>
-                                          </span>
-                                      </Stack>
-                                  </Box>
-                              </Wrap>
+                                  {/* eslint-disable-next-line react/jsx-no-undef */}
+                                  <MarketPlaceDistro marketplaceDistro={marketplaceDistro}></MarketPlaceDistro>
+                              </Stack>
                           </Box>
                       </Flex>
                   </div> }
                 </div>
-
         </div>
         }
       </Box>
