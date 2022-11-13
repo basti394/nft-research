@@ -1,5 +1,5 @@
 import { Box, TableContainer, Table, TableCaption, Thead, Tr, Th, Tbody, Td } from "@chakra-ui/react";
-import formatMarketplace from "../lib/formatMarketplace";
+import formatMarketplace from "../lib/Formatter/formatMarketplace";
 import numberWithCommas from "../lib/numberWithComma";
 
 export default function MarketPlaceDistro(props) {

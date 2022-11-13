@@ -97,6 +97,10 @@ export default function Index(){
   const handleSubmit = (event) => {
     console.log('LOL')
     if (event.target.value == collectionInput) return
+    setAmountWashtraders(0)
+    setAmountWashtrades(0)
+    setWashtradedVolume(0)
+    setRatioOfVolumes(0)
     setCollectionInput(event.target.value)
   }
 

@@ -34,7 +34,7 @@ export default function CollectionInformation(props) {
                 <Spacer/>
                 <Stack direction='column' align='center'>
                     <Text as='b'>Volume</Text>
-                    <Text fontSize='3xl'>◎{props.totalTradingVolume.toFixed(2)} (≈ {volumeInEur}€)</Text>
+                    <Text fontSize='3xl'>◎{numberWithCommas(props.totalTradingVolume.toFixed(2))} (≈ {volumeInEur}€)</Text>
                 </Stack>
              </Wrap>
         </Box>
