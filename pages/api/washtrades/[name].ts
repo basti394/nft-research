@@ -4,6 +4,7 @@ import getWashtradedVolume from "../../../lib/getWashtradedVolume";
 import getWashtraderAmount from "../../../lib/getWashtraderAmount";
 import getMarketplaceDistro from "../../../lib/getMarketplaceDistro";
 import getWashtradesAmount from "../../../lib/getWashtradesAmount";
+import getAmountWashTradedNFTs from "../../../lib/getAmountWashTradedNFTs";
 
 export default async function handler(req, res) {
     const name = req.query.name;
@@ -12,6 +13,8 @@ export default async function handler(req, res) {
     const amountOfWashtraders: number = await getWashtraderAmount(name, token)
 
     const amountOfWashtrades: number = await getWashtradesAmount(name, token)
+
+    const amountWashTradedNFTs: number = await getAmountWashTradedNFTs(name, token)
 
     const washtradedVolume: number = await getWashtradedVolume(name, token)
 
@@ -23,6 +26,8 @@ export default async function handler(req, res) {
 
     console.log({
         amountOfWashtraders: amountOfWashtraders,
+        amountOfWashtrades: amountOfWashtrades,
+        amountWashTradedNFTs: amountWashTradedNFTs,
         washtradedVolume: washtradedVolume,
         ratioOfVolumes: ratioOfTotalVolumeToWashtradedVolume,
         marketplaceDistro: marketplaceDistro
@@ -31,6 +36,7 @@ export default async function handler(req, res) {
     res.status(200).send({
         amountOfWashtraders: amountOfWashtraders,
         amountOfWashtrades: amountOfWashtrades,
+        amountWashTradedNFTs: amountWashTradedNFTs,
         washtradedVolume: washtradedVolume,
         ratioOfVolumes: ratioOfTotalVolumeToWashtradedVolume,
         marketplaceDistro: marketplaceDistro

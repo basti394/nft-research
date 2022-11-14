@@ -37,6 +37,7 @@ export default function Index(){
   const [ loadingCalculation, setLoadingCalculation ] = useState(false)
   const [ amountWashtraders, setAmountWashtraders ] = useState(0)
   const [ amountWashtrades, setAmountWashtrades ] = useState(0)
+  const [ amountWashTradedNFTs, setAmountWashTradedNFTs ] = useState(0)
   const [ washtradedVolume, setWashtradedVolume ] = useState(0)
   const [ ratioOfVolumes, setRatioOfVolumes ] = useState(0)
   const [ marketplaceDistro, setMarketplaceDistro ] = useState([])
@@ -99,6 +100,7 @@ export default function Index(){
     if (event.target.value == collectionInput) return
     setAmountWashtraders(0)
     setAmountWashtrades(0)
+    setAmountWashTradedNFTs(0)
     setWashtradedVolume(0)
     setRatioOfVolumes(0)
     setCollectionInput(event.target.value)
@@ -145,6 +147,7 @@ export default function Index(){
 
     setAmountWashtraders(data.amountOfWashtraders)
     setAmountWashtrades(data.amountOfWashtrades)
+    setAmountWashTradedNFTs(data.amountWashTradedNFTs)
     setWashtradedVolume(data.washtradedVolume)
     setRatioOfVolumes(data.ratioOfVolumes * 100)
     setLoadingCalculation(false)
@@ -275,6 +278,7 @@ export default function Index(){
                                   <CollectionWTInformation
                                       washTrades={amountWashtrades}
                                       washTrader={amountWashtraders}
+                                      washTradedNFTs={amountWashTradedNFTs}
                                       totalWashTradedVolume={washtradedVolume}
                                       volumeRatio={ratioOfVolumes}
                                       solPrice={solPrice}
