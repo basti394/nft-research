@@ -127,7 +127,8 @@ export default function Index(){
 
     const data: {
       amountOfWashtraders: number,
-      amountOfWashtrades: number
+      amountOfWashtrades: number,
+      amountWashTradedNFTs: number,    
       washtradedVolume: number,
       ratioOfVolumes: number,
       marketplaceDistro: any[]
