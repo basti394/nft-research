@@ -6,6 +6,8 @@ export default function getWTSCCs(allNodes: any[], allLinks: any[], threshold: n
 
     allNodes.forEach((element, index) => nodesParseMap.set(element.id, index))
 
+    console.log(allNodes.length)
+
     let graph: Graph = new Graph(allNodes.length)
 
     let parsedLinks: { source: number, target: number }[] = []
@@ -13,6 +15,8 @@ export default function getWTSCCs(allNodes: any[], allLinks: any[], threshold: n
     allLinks.forEach(element => {
         parsedLinks.push({source: nodesParseMap.get(element.source), target: nodesParseMap.get(element.target)})
     })
+
+    console.log(parsedLinks)
 
     parsedLinks.forEach(element => {
         graph.addEdge(element.source, element.target)
@@ -45,7 +49,9 @@ export default function getWTSCCs(allNodes: any[], allLinks: any[], threshold: n
             })
         })
 
-        graph = new Graph(parsedLinks.length)
+        graph = new Graph(allNodes.length)
+
+        console.log("parsedLinks in scc detectiong: ", parsedLinks)
 
         parsedLinks.forEach(element => {
             graph.addEdge(element.source, element.target)

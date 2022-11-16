@@ -126,7 +126,7 @@ async function requestFromME(name: string): Promise<any> {
         const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=${i * 100}&limit=100`)
         console.log("received response: ", response.status)
         if (response.status == 429) {
-            await new Promise(f => setTimeout(f, 60000));
+            await new Promise(f => setTimeout(f, 30000));
             i--;
             continue;
         }

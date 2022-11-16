@@ -248,7 +248,7 @@ export default function Index(){
                           <br/>
                           <br/>
                           <Text textAlign="center" fontSize='2xl'>
-                              Please consider using the name from the URL of the collection on MagicEden
+                              Please consider using the name from the URL (red underlined in image) of the collection on MagicEden
                           </Text>
                           <div>
                               <Box margin='auto' width='60%' height='60%' borderRadius='lg' overflow='hidden'>
