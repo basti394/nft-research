@@ -169,9 +169,6 @@ describe('SCC detecting Algorithm', function() {
 
         expect(wtSCCs).toStrictEqual(expectations)
     })
-});
-
-describe('SCC detecting Algorithm', function() {
 
     test('test for regular cycle', () => {
 
@@ -182,7 +179,7 @@ describe('SCC detecting Algorithm', function() {
                 {id: "A", group: 3},
                 {id: "B", group: 3},
                 {id: "C", group: 3},
-                ],
+            ],
             links: [
                 {
                     source: "A",
@@ -205,7 +202,7 @@ describe('SCC detecting Algorithm', function() {
                     token: "asdflkasjdf",
                     curvature: "test"
                 },
-                ]
+            ]
         }
 
         const allNodes = formattedDataME.nodes
@@ -217,9 +214,6 @@ describe('SCC detecting Algorithm', function() {
 
         expect(wtSCCs).toStrictEqual(expectations)
     })
-});
-
-describe('SCC detecting Algorithm', function() {
 
     test('test for cycle in scc', () => {
 
@@ -230,7 +224,7 @@ describe('SCC detecting Algorithm', function() {
                 {id: "A", group: 3},
                 {id: "B", group: 3},
                 {id: "C", group: 3},
-                ],
+            ],
             links: [
                 {
                     source: "A",
@@ -260,7 +254,7 @@ describe('SCC detecting Algorithm', function() {
                     token: "asdflkasjdf",
                     curvature: "test"
                 },
-                ]
+            ]
         }
 
         const allNodes = formattedDataME.nodes
@@ -273,4 +267,3 @@ describe('SCC detecting Algorithm', function() {
         expect(wtSCCs).toStrictEqual(expectations)
     })
 });
-
