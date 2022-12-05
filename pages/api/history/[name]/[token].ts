@@ -1,7 +1,5 @@
-import {getToken} from "@neo4j/graphql/dist/utils/get-token";
 import getTransaktionOfToken from "../../../../lib/getTransaktionOfToken";
 import formatHistoryData from "../../../../lib/Formatter/formatHistoryData";
-import getData from "../../../../lib/getData";
 import getWashTraders from "../../../../lib/getWashtraders";
 import getAmountTrades from "../../../../lib/getAmountTrades";
 import getAmountTradedNFTs from "../../../../lib/getAmountTradedNFTs";

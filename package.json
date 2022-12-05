@@ -1,6 +1,6 @@
 {
   "name": "nft-research",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,9 +17,6 @@
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
     "@loadable/component": "^5.15.2",
-    "@neo4j/graphql": "^3.1.0",
-    "apollo-server-core": "^3.6.7",
-    "apollo-server-micro": "^3.6.7",
     "cytoscape": "^3.21.1",
     "framer-motion": "^6.3.15",
     "micro": "^9.3.4",
