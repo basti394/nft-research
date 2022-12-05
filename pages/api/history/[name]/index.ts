@@ -12,7 +12,6 @@ import getTotalVolume from "../../../../lib/getTotalVolume";
 import getWashTraders from "../../../../lib/getWashtraders";
 import {delay} from "rxjs/operators";
 import getMarketplaceDistro from "../../../../lib/getMarketplaceDistro";
-import {all} from "@neo4j/graphql/dist/translate/cypher-builder/expressions/functions/PredicateFunctions";
 import getWTSCCs from "../../../../lib/getWTSCCs";
 
 const threshold = 5
