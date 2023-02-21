@@ -249,7 +249,7 @@ export default function Index({ data }) {
           </Box>
           <Box w='20%'>
             <Select
-                placeholder='Select option'
+                placeholder='or Select collection'
                 mt={3}
                 mr={3}
                 onChange={(value) => {
