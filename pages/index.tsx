@@ -2,12 +2,20 @@ import dynamic from "next/dynamic";
 import Image from 'next/image'
 import {useEffect, useState} from "react";
 import {
-    Input,
-    Center,
-    Text,
-    Spinner,
-    Flex, Spacer,
-    Box, Button, Stack, Wrap, useToast, WrapItem,
+  Box,
+  Button,
+  Center,
+  Flex,
+  HStack,
+  Input,
+  Select,
+  Spacer,
+  Spinner,
+  Stack,
+  Text,
+  useToast,
+  Wrap,
+  WrapItem,
 } from '@chakra-ui/react'
 import getSCCs from "../lib/getSCCs";
 import CollectionInformation from "../components/collectionInformation";
@@ -15,6 +23,7 @@ import getSOLPrice from "../lib/getSOLPrice";
 import CollectionWTInformation from "../components/collectionWTInformation";
 import MarketPlaceDistro from "../components/marketPlaceDistro";
 import NFT from "../components/nft";
+import getAllStoredCollectionNames from "../lib/getAllStoredCollectionNames";
 
 const Graph = dynamic(() => import('../components/graph2d'), {
   ssr: false
@@ -23,11 +32,11 @@ const Graph = dynamic(() => import('../components/graph2d'), {
 let allSCCs: { nodes: any[]; links: any[] }
 let allData = { nodes: [], links: [] }
 
-export default function Index(){
+export default function Index({ data }) {
 
   const [ collectionInput, setCollectionInput ] = useState('')
   const [ tokenInput, setTokenInput ] = useState('')
-  const [ data, setData ] = useState({ nodes: [], links: [] })
+  const [ myData, setMyData ] = useState({ nodes: [], links: [] })
   const [ amountTrades, setAmountTrades ] = useState(0)
   const [ amountTradedNFTs, setAmountTradedNFTs ] = useState(0)
   const [ amountTrader, setAmountTrader ] = useState(0)
@@ -68,7 +77,7 @@ export default function Index(){
     console.log('request to backend')
     setLoading(true)
     const fetchData = async () => {
-        setData(await fetch(`/api/history/${collectionInput}`, {
+        setMyData(await fetch(`/api/history/${collectionInput}`, {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json; charset=utf-8",
@@ -111,7 +120,7 @@ export default function Index(){
       noWTtoast()
       return
     }
-    setData(data)
+    setMyData(data)
   }
 
   function setTokenInputWrapper(event) {
@@ -174,7 +183,7 @@ export default function Index(){
       setLoadingToken(false)
       return
     }
-    setData(newData.data)
+    setMyData(newData.data)
     allData = newData.data
     allSCCs = getSCCs(newData.data)
     setAmountTrades(newData.amountTrades)
@@ -194,7 +203,7 @@ export default function Index(){
     setImageUrl('')
     setLoadingToken(true)
     const fetchData = async () => {
-      setData(await fetch(`/api/history/${collectionInput}`, {
+      setMyData(await fetch(`/api/history/${collectionInput}`, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json; charset=utf-8",
@@ -221,25 +230,51 @@ export default function Index(){
 
   return (
       <Box h='100%'>
-        <Center>
-          <Input
-              defaultValue={collectionInput}
-              m={[2, 3]}
-              placeholder='Enter a NFT Collection'
-              variant='filled'
-              onKeyPress={e=> {
-                if (e.key === 'Enter') {
-                  handleSubmit(e)
-                }
-              }}
-          ></Input>
-        </Center>
+        <HStack>
+          <Box w='80%'>
+            <Center>
+              <Input
+                  defaultValue={collectionInput}
+                  ml={3}
+                  mt={3}
+                  placeholder='Enter a NFT Collection'
+                  variant='filled'
+                  onKeyPress={e=> {
+                    if (e.key === 'Enter') {
+                      handleSubmit(e)
+                    }
+                  }}
+              ></Input>
+            </Center>
+          </Box>
+          <Box w='20%'>
+            <Select
+                placeholder='Select option'
+                mt={3}
+                mr={3}
+                onChange={(value) => {
+                  const { target } = value;
+
+                  if (target.type === 'select-one') {
+                    const selectValue: string = target.selectedOptions[0].value;
+                    setCollectionInput(selectValue)
+                  }
+                }}
+            >
+              { data.map((value) => (
+                  <option value={value} key={value}>{value}</option>
+              ))
+              }
+            </Select>
+          </Box>
+        </HStack>
+
         {
           (loading)
           ? <Center><Spinner size='xl' /></Center>
           : <div>
               <div>
-                  {(data.nodes.length == 0 && data.links.length == 0)
+                  {(myData.nodes.length == 0 && myData.links.length == 0)
                   ? <Center>
                       <Stack direction='column'>
                           <Text textAlign="center" fontSize='2xl'>
@@ -263,7 +298,7 @@ export default function Index(){
                   : <div>
                       <Flex>
                           <Box w='70%' borderWidth='2px' borderRadius='lg' overflow='hidden' m={[2, 3]} borderColor='gray.100'>
-                              <Graph data={data}></Graph>
+                              <Graph data={myData}></Graph>
                           </Box>
                           <Spacer/>
                           <Box w='30%' m={[2, 3]}>
@@ -344,4 +379,15 @@ export default function Index(){
         }
       </Box>
   )
+}
+
+export async function getServerSideProps() {
+
+  const storedCollections: string[] = await getAllStoredCollectionNames()
+
+  return {
+    props : {
+      data: storedCollections
+    }
+  }
 }
