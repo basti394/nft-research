@@ -5,7 +5,7 @@ import storeNewCollection from "../storeNewCollection";
 
 export default async function getEthCollection(collection: string, from: Date, to: Date) {
 
-    let dataMe
+    let dataMe = []
 
     try {
         await Moralis.start({
