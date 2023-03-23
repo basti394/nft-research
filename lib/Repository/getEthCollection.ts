@@ -53,14 +53,27 @@ async function requestcollection(collection: string, from: Date, to: Date) {
     let cursor = null
     let transfers = [];
     do {
-        const response = await Moralis.EvmApi.nft.getNFTContractTransfers({
-            address: collection,
-            chain,
-            fromDate: from,
-            toDate: to,
-            limit: 100,
-            cursor: cursor,
-        });
+        let response
+        try {
+            response = await Moralis.EvmApi.nft.getNFTContractTransfers({
+                address: collection,
+                chain,
+                fromDate: from,
+                toDate: to,
+                limit: 100,
+                cursor: cursor,
+            });
+        } catch (e) {
+            if (e.details.status == 401) {
+                throw "unexpected error"
+            } else if (e.details.details == 429) {
+                await new Promise(f => setTimeout(f, 60000));
+                continue
+            } else {
+                throw "unexpected error"
+            }
+        }
+
         console.log("response: ", response)
         console.log(
             `Got page ${response.raw.page} of ${Math.ceil(

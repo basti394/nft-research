@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import Image from 'next/image'
 import React, {useEffect, useState} from "react";
 import {
   Box,
@@ -19,15 +18,12 @@ import {
 } from '@chakra-ui/react'
 import getSCCs from "../lib/getSCCs";
 import CollectionInformation from "../components/collectionInformation";
-import getSOLPrice from "../lib/getSOLPrice";
 import CollectionWTInformation from "../components/collectionWTInformation";
 import MarketPlaceDistro from "../components/marketPlaceDistro";
 import NFT from "../components/nft";
 import getAllStoredCollectionNames from "../lib/getAllStoredCollectionNames";
-import Moralis from "moralis";
 import ExplanationETH from "../components/ExplanationETH";
 import ExplanationSOL from "../components/ExplanationSOL";
-import getTransactionTimeSpan from "../lib/getTransactionTimeSpan";
 
 const Graph = dynamic(() => import('../components/graph2d'), {
   ssr: false
@@ -57,6 +53,15 @@ export default function Index({ data }) {
   const [ showingTokenTxs, setShowingTokenTxs ] = useState(false)
   const [ imageUrl, setImageUrl ] = useState("")
   const [ transactionTimeStamp, setTransactionTimeStamp ] = useState([])
+
+  const errorToast = useToast({
+    position: 'top',
+    status: "error",
+    title: `Error occured, please try again in a few minutes. If the error occurs multiple times, please try again in 24 hours`,
+    containerStyle: {
+      maxWidth: '100%',
+    },
+  })
 
   const noWTtoast = useToast({
     position: 'bottom-right',
@@ -88,8 +93,17 @@ export default function Index({ data }) {
             },
             credentials: "same-origin",
         }).then((res) => {
+          if (res.status == 500) {
+            setLoading(false)
+            return null
+          }
             return res.json()
         }).then(async (l) => {
+          if (l == null) {
+            setLoading(false)
+            errorToast()
+            return allData
+          }
             setLoading(false)
             allData = l.data
             allSCCs = getSCCs(l.data)

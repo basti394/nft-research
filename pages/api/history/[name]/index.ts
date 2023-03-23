@@ -1,7 +1,6 @@
 import checkIfCollectionIsStored from "../../../../lib/checkIfCollectionIsStored";
 import storeNewCollection from "../../../../lib/storeNewCollection";
 import formatToGraphData from "../../../../lib/Formatter/formatToGraphData";
-import Graph from "../../../../lib/Graph"
 import markAddressAsWashTrader from "../../../../lib/markAddressAsWashtrader";
 import markTransactionAsWashtrade from "../../../../lib/markTransactionAsWashtrade";
 import getData from "../../../../lib/getData";
@@ -10,21 +9,14 @@ import getAmountTrades from "../../../../lib/getAmountTrades";
 import getAmountTradedNFTs from "../../../../lib/getAmountTradedNFTs";
 import getTotalVolume from "../../../../lib/getTotalVolume";
 import getWashTraders from "../../../../lib/getWashtraders";
-import {delay} from "rxjs/operators";
 import getMarketplaceDistro from "../../../../lib/getMarketplaceDistro";
 import getWTSCCs from "../../../../lib/getWTSCCs";
 import Moralis from "moralis";
 import {EvmChain} from "@moralisweb3/common-evm-utils";
-import {ampFirstEntryNamesMap} from "next/dist/build/webpack/plugins/next-drop-client-page-plugin";
 import formatVolume from "../../../../lib/Formatter/formatVolume";
-import {onError} from "@apollo/client/link/error";
 import getTransactionTimeSpan from "../../../../lib/getTransactionTimeSpan";
-import {async} from "rxjs";
 import getEthCollection from "../../../../lib/Repository/getEthCollection";
-import getSOLPrice from "../../../../lib/getSOLPrice";
 import getSolCollection from "../../../../lib/Repository/getSolCollection";
-import generateWeekList from "../../../../lib/generateWeekList";
-import {fromDate} from "next-auth/core/lib/utils";
 
 const threshold = 5
 
@@ -54,7 +46,13 @@ export default async function handler(req, res) {
 
             const fromOrigin = new Date("2021-1-1")
 
-            dataMe = await getEthCollection(name, fromOrigin, new Date())
+            try {
+                dataMe = await getEthCollection(name, fromOrigin, new Date())
+            } catch (e) {
+                if (e == "unexpected error") {
+                    res.status(500);
+                }
+            }
 
         } else {
             console.log('Anfrage an MagicEden')
