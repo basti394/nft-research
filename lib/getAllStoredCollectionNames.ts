@@ -6,10 +6,14 @@ const driver = neo4j.driver(
     { disableLosslessIntegers: true }
 );
 
-export default async function getAllStoredCollectionNames(): Promise<string[]> {
+export default async function getAllStoredCollectionNames(chain: string | undefined): Promise<string[]> {
     const session = driver.session();
 
-    const query = `MATCH ()-[r]-() WHERE (r.collection) IS NOT NULL RETURN distinct r.collection`
+    console.log(chain == undefined)
+
+    const query = chain != undefined
+        ? `MATCH ()-[r]-() WHERE (r.collection) AND r.chain = "${chain}" IS NOT NULL RETURN distinct r.collection`
+        : `MATCH ()-[r]-() WHERE (r.collection) IS NOT NULL RETURN distinct r.collection`
 
     let data;
 

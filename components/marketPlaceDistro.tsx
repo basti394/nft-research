@@ -4,6 +4,8 @@ import numberWithCommas from "../lib/numberWithComma";
 
 export default function MarketPlaceDistro(props) {
 
+
+
     return <div>
         <Box w='99%' bg='gray.100' borderRadius='lg' p='4' overflowX='scroll'>
             <TableContainer>

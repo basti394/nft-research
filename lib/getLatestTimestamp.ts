@@ -6,15 +6,12 @@ const driver = neo4j.driver(
     { disableLosslessIntegers: true }
 );
 
-export default async function getAmountWashTradedNFTs(name: String, token: string | null) {
+export default async function getLatestTimestamp(chain: "eth"|"sol", collection: string) {
 
     const session = driver.session();
 
-    if (token == null) {
-        return 0
-    }
 
-    const query = `match (n)-[r]->(m) where r.collection = "${name}" and r.flagged = true return count(distinct r.token)`
+    const query = `MATCH (n)-[r]->(m) where r.collection = "${collection}" RETURN MAX(r.timeStamp)`
 
     let data;
 
@@ -24,5 +21,9 @@ export default async function getAmountWashTradedNFTs(name: String, token: strin
         throw e;
     }
 
-    return data.records[0]._fields[0]
+    console.log(data)
+
+    console.log()
+
+    return data.records[0]._fields[0].low
 }

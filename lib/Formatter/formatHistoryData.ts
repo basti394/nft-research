@@ -1,6 +1,7 @@
 import {element, node} from "prop-types";
+import getCurrency from "../getCurrency";
 
-export default function formatHistoryData(data, washtraders: Set<string>): { nodes: any[]; links: any[]; } {
+export default function formatHistoryData(data, washtraders: Set<string>, chain: string): { nodes: any[]; links: any[]; } {
     let nodes = []
     let links = []
 
@@ -60,7 +61,7 @@ export default function formatHistoryData(data, washtraders: Set<string>): { nod
 
             const oldName = links.find(linkPredicate).name.split(" ")
             oldName.shift()
-            links.find(linkPredicate).name = `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + oldName + `price: ${element[1].properties.price} SOL <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`
+            links.find(linkPredicate).name = `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + oldName + `price: ${element[1].properties.price} ${getCurrency(chain)} <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`
 
         } else {
             if (element[1].properties.flagged) {
@@ -68,20 +69,27 @@ export default function formatHistoryData(data, washtraders: Set<string>): { nod
                     source: node1.properties.address,
                     target: node2.properties.address,
                     flagged: element[1].properties.flagged,
-                    name: `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + `price: ${element[1].properties.price} SOL <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`,
+                    name: `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + `price: ${element[1].properties.price} ${getCurrency(chain)} <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`,
                     group: 1
                 })
-            } else {
+            } else if (!element[1].properties.flagged) {
                 links.push({
                     source: node1.properties.address,
                     target: node2.properties.address,
                     flagged: element[1].properties.flagged,
-                    name: `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + `price: ${element[1].properties.price} SOL <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`,
+                    name: `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + `price: ${element[1].properties.price} ${getCurrency(chain)} <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`,
                     group: 2
+                })
+            } else if (element[1].properties.priceAssumed) {
+                links.push({
+                    source: node1.properties.address,
+                    target: node2.properties.address,
+                    flagged: element[1].properties.flagged,
+                    name: `${linkOccurrenceList.find(linkPredicate).occurrence}<br><br> ` + `price: ${element[1].properties.price} ${getCurrency(chain)} <br> marketplace: ${element[1].properties.marketplace} <br> token: ${element[1].properties.token}<br><br>`,
+                    group: 3
                 })
             }
         }
-
         //format links
 
 

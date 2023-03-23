@@ -1,191 +1,60 @@
-import checkIfCollectionIsStored from "../../../../lib/checkIfCollectionIsStored";
-import storeNewCollection from "../../../../lib/storeNewCollection";
-import formatToGraphData from "../../../../lib/Formatter/formatToGraphData";
-import Graph from "../../../../lib/Graph"
-import markAddressAsWashTrader from "../../../../lib/markAddressAsWashtrader";
-import markTransactionAsWashtrade from "../../../../lib/markTransactionAsWashtrade";
-import getData from "../../../../lib/getData";
-import formatHistoryData from "../../../../lib/Formatter/formatHistoryData";
-import getAmountTrades from "../../../../lib/getAmountTrades";
-import getAmountTradedNFTs from "../../../../lib/getAmountTradedNFTs";
-import getTotalVolume from "../../../../lib/getTotalVolume";
-import getWashTraders from "../../../../lib/getWashtraders";
-import {delay} from "rxjs/operators";
-import getMarketplaceDistro from "../../../../lib/getMarketplaceDistro";
-import getWTSCCs from "../../../../lib/getWTSCCs";
-import Moralis from "moralis";
 import {EvmChain} from "@moralisweb3/common-evm-utils";
-import {ampFirstEntryNamesMap} from "next/dist/build/webpack/plugins/next-drop-client-page-plugin";
-import formatVolume from "../../../../lib/Formatter/formatVolume";
-import {onError} from "@apollo/client/link/error";
-import getTransactionTimeSpan from "../../../../lib/getTransactionTimeSpan";
-import {async} from "rxjs";
-import getEthCollection from "../../../../lib/Repository/getEthCollection";
-import getSOLPrice from "../../../../lib/getSOLPrice";
-import getSolCollection from "../../../../lib/Repository/getSolCollection";
-import generateWeekList from "../../../../lib/generateWeekList";
-import {fromDate} from "next-auth/core/lib/utils";
+import Moralis from "moralis";
+import generateWeekList from "../generateWeekList";
+import storeNewCollection from "../storeNewCollection";
 
-const threshold = 5
+export default async function getEthCollection(collection: string, from: Date, to: Date) {
 
-export default async function handler(req, res) {
-    const name = req.query.name;
-
-    let isCollectionStored;
+    let dataMe
 
     try {
-        isCollectionStored = await checkIfCollectionIsStored(name);
-    } catch (e) {
-        res.status(500).send(e);
-        return;
+        await Moralis.start({
+            apiKey: process.env.MORALIS_TOKEN,
+        })
+    } catch (error) {
+        console.error(error);
     }
 
-    let dataMe: any[][] = []
-    let chain: "sol" | "eth"
+    console.log('Anfrage an moralis')
 
-    if (name.startsWith("0x")) {
-        chain = "eth"
-    } else {
-        chain = "sol"
-    }
+    const list = generateWeekList(from, to)
 
-    if (!isCollectionStored) {
-        if (chain == "eth") {
+    console.log(list);
 
-            const fromOrigin = new Date("2021-1-1")
+    await (async function () {
+        for (const value of list) {
+            const index = list.indexOf(value);
+            const from = value
+            const to = list[index + 1]
+            console.log("------------------------------------------------")
+            console.log(from)
+            console.log(to)
 
-            dataMe = await getEthCollection(name, fromOrigin, new Date())
+            let temporaryData = await requestcollection(collection, from, to)
 
-        } else {
-            console.log('Anfrage an MagicEden')
+            await new Promise(f => setTimeout(f, 3000));
 
-            dataMe = await getSolCollection(name)
+            console.log(temporaryData)
 
-            console.log("Received Data from Magic Eden")
-
-            let newArr = [];
-
-            for (let i = 0; i < dataMe.length; i++) {
-                newArr = newArr.concat(dataMe[i]);
-            }
-
-            console.log("filtering list")
-
-            dataMe = newArr.filter((element) => element.type == "buyNow")
             console.log("store new collection")
 
-            await storeNewCollection(name, JSON.stringify(dataMe), chain);
+            await storeNewCollection(collection, JSON.stringify(temporaryData), "eth");
+
+            dataMe = dataMe.concat(temporaryData)
         }
+    })();
 
-        const formattedDataME = formatToGraphData(dataMe, chain)
-
-        const allNodes = formattedDataME.nodes
-        const allLinks = formattedDataME.links
-
-        const wtSCCs = getWTSCCs(allNodes, allLinks, threshold)
-
-        console.log('wtSCC. ', wtSCCs)
-
-        for (const scc of wtSCCs) {
-            for (const element1 of scc) {
-                await markAddressAsWashTrader(element1, name);
-            }
-        }
-
-        for (const scc of wtSCCs) {
-            for (const element2 of scc) {
-                console.log(element2)
-                for (const element1 of scc.filter((element) => element != element2)) {
-                    console.log("|______", element1)
-                    await markTransactionAsWashtrade(element2, element1, name)
-                }
-            }
-        }
-    }
-
-    const data = await getData(name)
-
-    const washtraderSet = await getWashTraders(name)
-
-    const formattedData = formatHistoryData(data, washtraderSet, chain)
-
-    const amountTrades = await getAmountTrades(name, null)
-
-    const amountTradedNFTs = await getAmountTradedNFTs(name, null)
-
-    const amountTrader = formattedData.nodes.length
-
-    const totalTradingVolume = await formatVolume(await getTotalVolume(name, undefined), chain)
-
-    const marketplaceDistro = await getMarketplaceDistro(name, undefined, false)
-
-    const transactionTimeSpan = await getTransactionTimeSpan(name, undefined)
-
-    console.log({
-        data: formattedData,
-        amountTrades: amountTrades,
-        amountTradedNFTs: amountTradedNFTs,
-        amountTrader: amountTrader,
-        totalTradingVolume: totalTradingVolume,
-        marketplaceDistro: marketplaceDistro,
-        transactionTimeSpan: transactionTimeSpan
-    })
-
-    res.status(200).send({
-        data: formattedData,
-        amountTrades: amountTrades,
-        amountTradedNFTs: amountTradedNFTs,
-        amountTrader: amountTrader,
-        totalTradingVolume: totalTradingVolume,
-        marketplaceDistro: marketplaceDistro,
-        transactionTimeSpan: transactionTimeSpan
-    });
+    return dataMe
 }
 
-async function requestFromME(name: string): Promise<any> {
-
-    let list = []
-
-    let lastData = [""];
-
-    for (let i = 0; i < 3000; i++) {
-        if (lastData.length == 0) {
-            break;
-        }
-        console.log("sending request ", i)
-        console.log("amount to receive ", i * 100)
-        const response = await fetch(`https://api-mainnet.magiceden.dev/v2/collections/${name}/activities?offset=${i * 100}&limit=100`)
-        console.log("received response: ", response.status)
-        if (response.status == 429) {
-            await new Promise(f => setTimeout(f, 30000));
-            i--;
-            continue;
-        }
-        if (response.status == 400) {
-            break;
-        }
-        const data = await response.json();
-        if (response.status != 200) {
-            console.log("data: ", data)
-        }
-        lastData = data;
-        console.log('data length ',data.length)
-        console.log("-----------------------------------------")
-        list.push(data)
-    }
-
-    return list
-}
-
-async function requestFromMoralis(address: string, from: Date, to: Date) {
-
+async function requestcollection(collection: string, from: Date, to: Date) {
     const chain = EvmChain.ETHEREUM;
 
     let cursor = null
     let transfers = [];
     do {
         const response = await Moralis.EvmApi.nft.getNFTContractTransfers({
-            address,
+            address: collection,
             chain,
             fromDate: from,
             toDate: to,
@@ -435,7 +304,4 @@ async function requestFromMoralis(address: string, from: Date, to: Date) {
     })
 
     return transfers.filter((transfer) => transfer.price > 0);
-
 }
-
-

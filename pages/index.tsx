@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import Image from 'next/image'
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
   Box,
   Button,
@@ -24,6 +24,10 @@ import CollectionWTInformation from "../components/collectionWTInformation";
 import MarketPlaceDistro from "../components/marketPlaceDistro";
 import NFT from "../components/nft";
 import getAllStoredCollectionNames from "../lib/getAllStoredCollectionNames";
+import Moralis from "moralis";
+import ExplanationETH from "../components/ExplanationETH";
+import ExplanationSOL from "../components/ExplanationSOL";
+import getTransactionTimeSpan from "../lib/getTransactionTimeSpan";
 
 const Graph = dynamic(() => import('../components/graph2d'), {
   ssr: false
@@ -40,19 +44,19 @@ export default function Index({ data }) {
   const [ amountTrades, setAmountTrades ] = useState(0)
   const [ amountTradedNFTs, setAmountTradedNFTs ] = useState(0)
   const [ amountTrader, setAmountTrader ] = useState(0)
-  const [ totalTradingVolume, setTotalTradingVolume ] = useState(0)
+  const [ totalTradingVolume, setTotalTradingVolume ] = useState("0 (≈ 0.00€)")
   const [ loading, setLoading ] = useState(false)
   const [ loadingToken, setLoadingToken ] = useState(false)
   const [ loadingCalculation, setLoadingCalculation ] = useState(false)
   const [ amountWashtraders, setAmountWashtraders ] = useState(0)
   const [ amountWashtrades, setAmountWashtrades ] = useState(0)
   const [ amountWashTradedNFTs, setAmountWashTradedNFTs ] = useState(0)
-  const [ washtradedVolume, setWashtradedVolume ] = useState(0)
+  const [ washtradedVolume, setWashtradedVolume ] = useState("0 (≈ 0.00€)")
   const [ ratioOfVolumes, setRatioOfVolumes ] = useState(0)
   const [ marketplaceDistro, setMarketplaceDistro ] = useState([])
   const [ showingTokenTxs, setShowingTokenTxs ] = useState(false)
   const [ imageUrl, setImageUrl ] = useState("")
-  const [ solPrice, setSolPrice ] = useState(0)
+  const [ transactionTimeStamp, setTransactionTimeStamp ] = useState([])
 
   const noWTtoast = useToast({
     position: 'bottom-right',
@@ -94,7 +98,7 @@ export default function Index({ data }) {
             setAmountTrader(l.amountTrader)
             setTotalTradingVolume(l.totalTradingVolume)
             setMarketplaceDistro(l.marketplaceDistro)
-            setSolPrice(await getSOLPrice())
+            setTransactionTimeStamp(l.transactionTimeSpan)
             return l.data
         }))
     }
@@ -110,7 +114,7 @@ export default function Index({ data }) {
     setAmountWashtraders(0)
     setAmountWashtrades(0)
     setAmountWashTradedNFTs(0)
-    setWashtradedVolume(0)
+    setWashtradedVolume("0 (≈ 0.00€)")
     setRatioOfVolumes(0)
     setCollectionInput(event.target.value)
   }
@@ -128,6 +132,7 @@ export default function Index({ data }) {
   }
 
   async function handleCalculateStatsClick() {
+    console.log(tokenInput)
     setLoadingCalculation(true)
     const url = (tokenInput == '')
         ? `/api/washtrades/${collectionInput}`
@@ -138,7 +143,7 @@ export default function Index({ data }) {
       amountOfWashtraders: number,
       amountOfWashtrades: number,
       amountWashTradedNFTs: number,    
-      washtradedVolume: number,
+      washtradedVolume: string,
       ratioOfVolumes: number,
       marketplaceDistro: any[]
     } = await fetch(url, {
@@ -149,7 +154,7 @@ export default function Index({ data }) {
       credentials: "same-origin",
     }).then(async (res) => await res.json())
 
-    if (data.amountOfWashtraders == 0 || data.washtradedVolume == 0) {
+    if (data.amountOfWashtraders == 0) {
       noWTtoast()
     } else {
       setMarketplaceDistro(data.marketplaceDistro)
@@ -194,6 +199,7 @@ export default function Index({ data }) {
     setLoadingToken(false)
     setShowingTokenTxs(true)
     setMarketplaceDistro(newData.marketplaceDistro)
+    setTransactionTimeStamp(newData.transactionTimeSpan)
     await handleCalculateStatsClick()
   }
 
@@ -220,6 +226,7 @@ export default function Index({ data }) {
         setAmountTrader(l.amountTrader)
         setTotalTradingVolume(l.totalTradingVolume)
         setMarketplaceDistro(l.marketplaceDistro)
+        setTransactionTimeStamp(l.transactionTimeSpan)
         return l.data
       }))
     }
@@ -277,22 +284,22 @@ export default function Index({ data }) {
                   {(myData.nodes.length == 0 && myData.links.length == 0)
                   ? <Center>
                       <Stack direction='column'>
-                          <Text textAlign="center" fontSize='2xl'>
-                              Please enter the name of a NFT collection
-                          </Text>
-                          <br/>
-                          <br/>
-                          <Text textAlign="center" fontSize='2xl'>
-                              Please consider using the name from the URL (red underlined in image) of the collection on MagicEden
-                          </Text>
-                          <div>
-                              <Box margin='auto' width='60%' height='60%' borderRadius='lg' overflow='hidden'>
-                                  <Image
-                                      src={require('../assets/example_name.png')}
-                                      alt='example image'
-                                  />
-                              </Box>
-                          </div>
+                        <Text textAlign="center" fontSize='2xl'>
+                          Please enter the name of a NFT collection
+                        </Text>
+                        <Text textAlign="center" fontSize='l'>
+                          (It is possible that the search takes a few minutes. That&apos;s the case when the collection is searched for the first time. Just leave the window open)
+                        </Text>
+                        <br/>
+                        <br/>
+                        <Stack direction='column'>
+                          <Center>
+                            <ExplanationSOL/>
+                          </Center>
+                          <Center>
+                            <ExplanationETH/>
+                          </Center>
+                        </Stack>
                       </Stack>
                   </Center>
                   : <div>
@@ -307,7 +314,6 @@ export default function Index({ data }) {
                                   amountTrader={amountTrader}
                                   amountTradedNFTs={amountTradedNFTs}
                                   totalTradingVolume={totalTradingVolume}
-                                  solPrice={solPrice}
                               ></CollectionInformation>
                               <br/>
                               <Stack direction='column'>
@@ -317,7 +323,6 @@ export default function Index({ data }) {
                                       washTradedNFTs={amountWashTradedNFTs}
                                       totalWashTradedVolume={washtradedVolume}
                                       volumeRatio={ratioOfVolumes}
-                                      solPrice={solPrice}
                                       ></CollectionWTInformation>
                                   <Box w='30%'>
                                       <Button
@@ -370,6 +375,11 @@ export default function Index({ data }) {
                                   <br/>
                                   {/* eslint-disable-next-line react/jsx-no-undef */}
                                   <MarketPlaceDistro marketplaceDistro={marketplaceDistro}></MarketPlaceDistro>
+                                  <Center>
+                                    <Text>
+                                      <b>Timespan: </b> {new Date(transactionTimeStamp[0] * 1000).toUTCString()} - {new Date(transactionTimeStamp[1] * 1000).toUTCString()}
+                                    </Text>
+                                  </Center>
                               </Stack>
                           </Box>
                       </Flex>
@@ -383,7 +393,9 @@ export default function Index({ data }) {
 
 export async function getServerSideProps() {
 
-  const storedCollections: string[] = await getAllStoredCollectionNames()
+  const storedCollections: string[] = await getAllStoredCollectionNames(undefined)
+
+  console.log(storedCollections)
 
   return {
     props : {

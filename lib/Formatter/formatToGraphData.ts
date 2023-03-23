@@ -1,11 +1,12 @@
 import {element, node} from "prop-types";
+import getCurrency from "../getCurrency";
 
-export default function formatMagicEdenToGraphData(wholeData): { nodes: any[]; links: any[]; } {
+export default function formatToGraphData(wholeData, chain: string): { nodes: any[]; links: any[]; } {
 
     const nodes = []
     const links = []
 
-    wholeData?.forEach( (data, index) => {
+    wholeData?.forEach((data, index) => {
 
         if (!nodes.some(element => element.id == data.seller)) {
             nodes.push({
@@ -27,7 +28,7 @@ export default function formatMagicEdenToGraphData(wholeData): { nodes: any[]; l
             links.push({
                 source: data.seller,
                 target: data.buyer,
-                name: `price: ${data.price} SOL, \n marketplace: ${data.source}, \n token: ${data.tokenMint}`,
+                name: `price: ${data.price} ${getCurrency(chain)}, \n marketplace: ${data.source}, \n token: ${data.tokenMint}`,
                 token: data.tokenMint,
                 curvature: 0.3 * repetitions,
             })
@@ -35,7 +36,7 @@ export default function formatMagicEdenToGraphData(wholeData): { nodes: any[]; l
             links.push({
                 source: data.seller,
                 target: data.buyer,
-                name: `price: ${data.price} SOL, \n marketplace: ${data.source}, \n token: ${data.tokenMint}`,
+                name: `price: ${data.price} ${getCurrency(chain)}, \n marketplace: ${data.source}, \n token: ${data.tokenMint}`,
                 token: data.tokenMint,
                 curvature: -0.3 * repetitions,
             })

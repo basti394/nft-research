@@ -4,16 +4,6 @@ import numberWithCommas from "../lib/numberWithComma";
 
 export default function CollectionWTInformation(props) {
 
-    const [ volumeInEur, setVolumeInEur ] = useState("0")
-
-    useEffect(() => {
-        const solPrice = props.solPrice
-        const totalWashtradingVolume = props.totalWashTradedVolume.toFixed(2)
-
-        const volumeInEur: string = (solPrice * totalWashtradingVolume).toFixed(2)
-        setVolumeInEur(numberWithCommas(volumeInEur))
-    }, [props.solPrice, props.totalWashTradedVolume])
-
     return <div>
         <Box w='100%' bg='gray.100' borderRadius='lg' p='4'>
             <Wrap justify='center'>
@@ -37,7 +27,7 @@ export default function CollectionWTInformation(props) {
             <Wrap spacing='30px' justify='left'>
                 <Stack direction='column' align='center'>
                     <Text as='b'>Wash Traded Volume</Text>
-                    <Text fontSize='3xl'>◎{numberWithCommas(props.totalWashTradedVolume.toFixed(2))} (≈ {volumeInEur}€)</Text>
+                    <Text fontSize='3xl'>{props.totalWashTradedVolume}</Text>
                 </Stack>
                 <Stack direction='column' align='center'>
                     <Text as='b'>Volume Ratio</Text>

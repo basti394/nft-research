@@ -6,6 +6,8 @@ import getAmountTradedNFTs from "../../../../lib/getAmountTradedNFTs";
 import getTotalVolume from "../../../../lib/getTotalVolume";
 import getTokenImage from "../../../../lib/getTokenImage";
 import getMarketplaceDistro from "../../../../lib/getMarketplaceDistro";
+import formatVolume from "../../../../lib/Formatter/formatVolume";
+import getTransactionTimeSpan from "../../../../lib/getTransactionTimeSpan";
 
 export default async function handler(req, res) {
     const name = req.query.name;
@@ -14,11 +16,16 @@ export default async function handler(req, res) {
     console.log(name)
     console.log(token)
 
+    let chain
+    if (name.startsWith("0x")) {
+        chain = "eth"
+    } else chain = "sol"
+
     const tokenHistory = await getTransaktionOfToken(name, token)
 
     const washTraders = await getWashTraders(name)
 
-    const formattedData = formatHistoryData(tokenHistory, washTraders)
+    const formattedData = formatHistoryData(tokenHistory, washTraders, chain)
 
     const amountTrades = await getAmountTrades(name, token)
 
@@ -26,11 +33,13 @@ export default async function handler(req, res) {
 
     const amountTrader = formattedData.nodes.length
 
-    const totalTradingVolume = await getTotalVolume(name, token)
+    const totalTradingVolume = await formatVolume(await getTotalVolume(name, token), chain)
 
-    const imageUrl = await getTokenImage(token)
+    const imageUrl = await getTokenImage(token, name, chain)
 
     const marketplaceDistro = await getMarketplaceDistro(name, token, false)
+
+    const transactionTImeSpan = await getTransactionTimeSpan(name, token)
 
     res.status(200).send({
         data: formattedData,
@@ -39,6 +48,7 @@ export default async function handler(req, res) {
         amountTrader: amountTrader,
         totalTradingVolume: totalTradingVolume,
         imageUrl: imageUrl,
-        marketplaceDistro: marketplaceDistro
+        marketplaceDistro: marketplaceDistro,
+        transactionTimeSpan: transactionTImeSpan
     });
 }
