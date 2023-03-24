@@ -67,7 +67,7 @@ async function requestcollection(collection: string, from: Date, to: Date) {
         } catch (e) {
             if (e.details.status == 401) {
                 throw "unexpected error"
-            } else if (e.details.details == 429) {
+            } else if (e.details.status == 429) {
                 await new Promise(f => setTimeout(f, 60000));
                 continue
             } else {
