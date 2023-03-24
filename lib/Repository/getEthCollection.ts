@@ -72,6 +72,7 @@ async function requestcollection(collection: string, from: Date, to: Date) {
                 continue
             } else {
                 console.log(".................asdfsadf............")
+                console.log(e)
                 throw "unexpected error"
             }
         }
