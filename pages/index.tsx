@@ -104,7 +104,7 @@ export default function Index({ data }) {
           if (l == null) {
             console.log("500 error 2")
             setLoading(false)
-            errorToast()
+            //errorToast()
             setCollectionInput("")
             return allData
           }
@@ -124,7 +124,7 @@ export default function Index({ data }) {
       setLoading(false)
       console.log('data fetched')
     });
-  }, [collectionInput, errorToast])
+  }, [collectionInput/*, errorToast*/])
 
   const handleSubmit = (event) => {
     console.log('LOL')

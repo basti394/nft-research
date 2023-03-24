@@ -21,6 +21,7 @@ import getSolCollection from "../../../../lib/Repository/getSolCollection";
 const threshold = 5
 
 export default async function handler(req, res) {
+    console.log("__________________ANFRAGE AN BACKEND___________________")
     const name = req.query.name;
 
     let isCollectionStored;
