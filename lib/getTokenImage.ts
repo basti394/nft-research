@@ -10,13 +10,6 @@ export default async function getTokenImage(token: string, collection: string, c
         data = await response.json();
         return data.image;
     } else if (chain == "eth") {
-        try {
-            await Moralis.start({
-                apiKey: "4MzaOgmsjNYREYDGfD6e32tdg4jx8y5sMS3swFwpxb2mTdh5qJQRjTxpgkalF8Z2"
-            })
-        } catch (error) {
-            console.error(error);
-        }
         response = await Moralis.EvmApi.nft.getNFTMetadata({
             address: collection,
             chain: EvmChain.ETHEREUM,

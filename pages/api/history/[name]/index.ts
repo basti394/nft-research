@@ -49,8 +49,10 @@ export default async function handler(req, res) {
             try {
                 dataMe = await getEthCollection(name, fromOrigin, new Date())
             } catch (e) {
+                console.log(e)
                 if (e == "unexpected error") {
-                    res.status(500);
+                    res.status(500).send(e);
+                    return
                 }
             }
 

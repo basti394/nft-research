@@ -31,11 +31,10 @@ export default async function getTransactionTimeSpan(collection: string, token: 
         throw e;
     }
 
-    //TODO: hier fehler mit TypeError: Cannot read properties of undefined (reading '_fields')
-    const earliestTimeStamp = resultEarliest.records[0]._fields[0].low
-    const latestTimeStamp = resultLatest.records[0]._fields[0].low
+    const earliestTimeStamp = resultEarliest.records[0]
+    const latestTimeStamp = resultLatest.records[0]
 
-    console.log([earliestTimeStamp, latestTimeStamp])
+    if (earliestTimeStamp == null || latestTimeStamp == null) return [0, 0]
 
-    return [earliestTimeStamp, latestTimeStamp]
+    return [earliestTimeStamp._fields[0].low, latestTimeStamp._fields[0].low]
 }

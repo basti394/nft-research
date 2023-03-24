@@ -94,14 +94,18 @@ export default function Index({ data }) {
             credentials: "same-origin",
         }).then((res) => {
           if (res.status == 500) {
+            console.log("500 error1")
             setLoading(false)
+            setCollectionInput("")
             return null
           }
             return res.json()
         }).then(async (l) => {
           if (l == null) {
+            console.log("500 error 2")
             setLoading(false)
             errorToast()
+            setCollectionInput("")
             return allData
           }
             setLoading(false)
@@ -120,7 +124,7 @@ export default function Index({ data }) {
       setLoading(false)
       console.log('data fetched')
     });
-  }, [collectionInput])
+  }, [collectionInput, errorToast])
 
   const handleSubmit = (event) => {
     console.log('LOL')

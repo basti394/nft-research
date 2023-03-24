@@ -5,8 +5,6 @@ import storeNewCollection from "../storeNewCollection";
 
 export default async function getEthCollection(collection: string, from: Date, to: Date) {
 
-    let dataMe = []
-
     try {
         await Moralis.start({
             apiKey: process.env.MORALIS_TOKEN,
@@ -14,6 +12,8 @@ export default async function getEthCollection(collection: string, from: Date, t
     } catch (error) {
         console.error(error);
     }
+
+    let dataMe = []
 
     console.log('Anfrage an moralis')
 
@@ -52,6 +52,7 @@ async function requestcollection(collection: string, from: Date, to: Date) {
 
     let cursor = null
     let transfers = [];
+
     do {
         let response
         try {
@@ -70,6 +71,7 @@ async function requestcollection(collection: string, from: Date, to: Date) {
                 await new Promise(f => setTimeout(f, 60000));
                 continue
             } else {
+                console.log(".................asdfsadf............")
                 throw "unexpected error"
             }
         }
