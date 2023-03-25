@@ -10,8 +10,8 @@ export default async function getAmountWashTradedNFTs(name: String, token: strin
 
     const session = driver.session();
 
-    if (token == null) {
-        return 0
+    if (token != null) {
+        return 1
     }
 
     const query = `match (n)-[r]->(m) where r.collection = "${name}" and r.flagged = true return count(distinct r.token)`
