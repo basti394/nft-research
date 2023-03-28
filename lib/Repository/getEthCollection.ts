@@ -32,6 +32,7 @@ export default async function getEthCollection(collection: string, from: Date, t
 
             let temporaryData = await requestcollection(collection, from, to)
 
+            //TODO: remove unnecessary pause
             await new Promise(f => setTimeout(f, 3000));
 
             console.log(temporaryData)
